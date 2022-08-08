@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<TabbedPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="AppNavigation.MainPage"
+             xmlns:local="clr-namespace:AppNavigation" >
+
+    <local:ContactListPage Title="Contacts" IconImageSource="heart"/>
+    <local:ProfilePage Title="Profile" IconImageSource="user"/>
+
+</TabbedPage>

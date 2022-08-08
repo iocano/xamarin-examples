@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+			 x:Class="RelativeLayout.MainPage">
+	<!--
+	Relative Layout
+	Used to position and size children relative to properties of the layout or sibling elements. 
+	with ConstraintExpressions
+	ConstraintExpression defines the following properties:
+		Constant(double):		represents the constraint constant value (Add/Substract to final value)
+		ElementName(string):	represents the name of a source element against which to calculate the constraint.
+		Factor(double):			represents the factor by which to scale a constrained dimension, relative to the source element. This property defaults to 1.
+		Property(string):		represents the name of the property on the source element to use in the constraint calculation.
+		Type(ConstraintType):	represents the type of the constraint.
+
+	ConstraintType
+		Constant			constant constraint.
+		RelativeToParent	constraint that is relative to a parent element.
+		RelativeToVie		constraint that is relative to a view.
+
+	-->
+	<RelativeLayout>
+		<BoxView Color="Aqua" x:Name="banner"
+			RelativeLayout.WidthConstraint="{ConstraintExpression
+				Type=RelativeToParent,
+				Property=Width,
+				Factor=1 }"
+			RelativeLayout.HeightConstraint="{ConstraintExpression
+				Type=RelativeToParent,
+				Property=Height,
+				Factor=0.3}"/>
+
+		<BoxView Color="Silver"
+			RelativeLayout.YConstraint="{ConstraintExpression
+				Type=RelativeToView,
+				ElementName=banner,
+				Property=Height,
+				Factor=1,
+				Constant=30}"/>
+	</RelativeLayout>
+</ContentPage>

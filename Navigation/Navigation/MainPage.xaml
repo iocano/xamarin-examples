@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Navigation.MainPage"
+             Title="Main Page Title">
+    <!--
+
+    Initialize MainPage as NavigationPage() argument on App.xaml.cs 
+        MainPage = new NavigationPage(new WelcomePage());
+
+    Change NavigationBar color (App.xaml.xs
+        MainPage = new NavigationPage(new WelcomePage()) {
+            BarBackgroundColor = Color.Black,
+            BarTextColor = Color.IndianRed
+        };
+
+    Disable navigation bar (individual page)
+        <ContentPage ...  NavigationPage.HasNavigationBar="False" >
+
+    Disable back button on Navigation bar
+        <ContentPage ... NavigationPage.HasBackButton="False" >
+    
+    Disable physical BackButton
+        protected override bool OnBackButtonPressed() => true;
+    -->
+
+    <StackLayout HorizontalOptions="Center" VerticalOptions="Center">
+        <Label Text="Main Page" HorizontalOptions="Center"/>
+        <Button Text="Go to Target Page" Clicked="Button_Clicked"/>
+        <Button Text="Go to Modal Target Page" Clicked="ModalButton_Clicked"/>
+    </StackLayout>
+
+</ContentPage>

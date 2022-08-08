@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="AppAbsoluteLayout2.MainPage">
+
+<AbsoluteLayout BackgroundColor="White">
+
+        <BoxView BackgroundColor="#f7f7f7" 
+                 AbsoluteLayout.LayoutBounds="0, 0, 1, 0.33" 
+                 AbsoluteLayout.LayoutFlags="All" />
+
+        <StackLayout 
+            HorizontalOptions="Center" VerticalOptions="Center"
+            AbsoluteLayout.LayoutBounds="0, 0, 1, 0.33" 
+            AbsoluteLayout.LayoutFlags="All">
+            <Label Text="Title" TextColor="#33353a" FontSize="60" FontAttributes="Bold"/>
+            <Button Text="Button" BackgroundColor="#1695A3" CornerRadius="15" TextColor="White" FontSize="15" FontAttributes="Bold"/>
+        </StackLayout>
+
+        <StackLayout 
+            Padding="40, 0" Spacing="20"
+            AbsoluteLayout.LayoutBounds="0, 0.5, 1, .25" 
+            AbsoluteLayout.LayoutFlags="All" 
+            BackgroundColor="White" >
+            <Label Text="Subtitle" FontSize="15" FontAttributes="Bold" HorizontalTextAlignment="Center" />
+            <Label FontSize="15" HorizontalTextAlignment="Center" x:Name="description"></Label>
+        </StackLayout>
+
+    </AbsoluteLayout>
+
+</ContentPage>

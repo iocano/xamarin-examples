@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="AppDeviceSpecific.MainPage" Padding="20">
+
+    <ContentPage.Padding>
+        <OnPlatform x:TypeArguments="Thickness">
+            <OnPlatform.Platforms>
+                <On Platform="Android" Value="20, 30, 20, 20" />
+                <On Platform="UWP" Value="20, 40, 20, 20" />
+            </OnPlatform.Platforms>
+        </OnPlatform>
+    </ContentPage.Padding>
+
+    <ContentPage.Content>
+        <StackLayout>
+            <Button Clicked="OnClick" Text="Next"></Button>
+            <Label Text="{Binding Source={x:Reference Slider}, Path=Value, StringFormat='Fonts size: {0:F0}'}"/>
+            <Slider x:Name="Slider" Maximum="80" Minimum="16"/>
+            <Label x:Name="Quote" BindingContext="{x:Reference Slider}" FontSize="{Binding Value}"></Label>
+        </StackLayout>
+    </ContentPage.Content>
+
+</ContentPage>

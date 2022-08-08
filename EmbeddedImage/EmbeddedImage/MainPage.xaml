@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+			 x:Class="EmbeddedImage.MainPage"
+			 xmlns:local="clr-namespace:EmbeddedImage.MarkupExtensions"
+			 >
+	<StackLayout>
+		<!--
+	Embeded image
+		*Doesn't need activity indicator
+
+		Create Images folder on PCL project
+		Right click folder, Add image
+		Right click image, Properties, set Build action to EmbeddedResource
+
+		Set embedded image source on code 
+			image.Source = ImageSource.FromResource("ProjectNamePCL.Folder.imageName.ext");
+	-->
+		<Image x:Name="image1" BackgroundColor="Gray" HeightRequest="200"/>
+
+
+		<!--
+		EmmbeddedImage Xaml Extension making
+			Create 'MarkupExtensions' folder on PCL project
+			Create 'EmbeddedImage' class that implements IMarkupExtension interface
+			// Allows use of extension without expecify ResourceId attribute explicitly
+			[ContentProperty("ResourceId")]
+			internal class EmbeddedImage : IMarkupExtension {
+				public string ResourceId { get; set; }
+				public object ProvideValue(IServiceProvider serviceProvider) {
+					return string.IsNullOrWhiteSpace(ResourceId) 
+						? null 
+						: ImageSource.FromResource(ResourceId);
+				}
+			}
+		-->
+
+		<!--
+		Usage: 
+			Import namespace con ContentPage tag
+			* If Extension is in the same project assembly indicate 'assembly' is optional
+			<ContentPage ... xmlns:local="clr-namespace:EmbeddedImage.MarkupExtensions;assembly=EmbeddedImager">
+		-->
+		<!--
+		Option 1: ContentProperty attribute was not implement
+		-->
+		<Image Source="{local:EmbeddedImage ResourceId=EmbeddedImage.Images.donut.png}" HeightRequest="200"/>
+
+		<!--
+		Option 2: ContentProperty attribute was implement
+		-->
+		<Image Source="{local:EmbeddedImage EmbeddedImage.Images.donut.png}" HeightRequest="200" BackgroundColor="AntiqueWhite"/>
+	</StackLayout>
+
+
+</ContentPage>

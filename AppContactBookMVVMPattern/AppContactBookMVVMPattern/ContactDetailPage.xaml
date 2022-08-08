@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="AppContactBookMVVMPattern.ContactDetailPage">
+
+    <TableView Intent="Form">
+        <TableRoot>
+            <TableSection Title="Name" >
+                <EntryCell Placeholder="First name" Text="{Binding Path=Contact.FirstName}"/>
+                <EntryCell Placeholder="Last name" Text="{Binding Path=Contact.LastName}"/>
+                <TextCell x:Name="NameError" TextColor="red"/>
+            </TableSection>
+
+            <TableSection Title="Contact" >
+                <EntryCell Keyboard="Telephone"  Placeholder="Phone" Text="{Binding Path=Contact.Phone}" />
+                <EntryCell Keyboard="Email" Placeholder="Email" Text="{Binding Path=Contact.Email}"/>
+            </TableSection>
+
+            <TableSection Title="Other" >
+                <SwitchCell Text="Blocked" On="{Binding Path=Contact.IsBlocked}"/>
+            </TableSection>
+
+            <TableSection >
+                <ViewCell>
+                    <Button Text="Save" Command="{Binding SaveCommand}"/>
+                </ViewCell>
+            </TableSection>
+        </TableRoot>
+    </TableView>
+
+</ContentPage>

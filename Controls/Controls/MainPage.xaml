@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+			 x:Class="Controls.MainPage"
+			 xmlns:sys="clr-namespace:System;assembly=mscorlib" 
+			 >
+
+	<StackLayout>
+
+		<!--
+		Switch	
+		-->
+		<StackLayout Orientation="Horizontal">
+			<Switch IsToggled="True" x:Name="switch" Toggled="OnSwitchToggled" HorizontalOptions="StartAndExpand"/>
+			<Label Text="Content" IsVisible="{Binding Source={x:Reference switch}, Path=IsToggled}" HorizontalOptions="CenterAndExpand"/>
+			<Label Text="{Binding Source={x:Reference switch}, Path=IsToggled, StringFormat='Switch is: {0}'}" HorizontalOptions="EndAndExpand"/>
+		</StackLayout>
+
+		<!--
+		Slider
+		* To set min/max is needed set first the propertty maximum (1 is default max, cause exception if minimum is set first)
+		* Note string format 
+		-->
+		<StackLayout Orientation="Horizontal" >
+			<Slider x:Name="slider" Maximum="255" Minimum="1" Value="100"  ValueChanged="OnSliderValueChanged" HorizontalOptions="FillAndExpand"/>
+			<Label Text="{Binding Source={x:Reference slider}, Path=Value, StringFormat='Slider Value: {0:N0}'}"/>
+		</StackLayout>
+
+		<!--
+		Stepper
+		-->
+		<StackLayout Orientation="Horizontal">
+			<Stepper x:Name="stepper" Maximum="100" Minimum="0" Increment="5" ValueChanged="OnStepperValueChanged"/>
+			<Label Text="{Binding Source={x:Reference stepper}, Path=Value, StringFormat='Stepper {0}'}"/>
+		</StackLayout>
+
+		<!--
+		Entry
+		* Complete event is trigger on enter
+		-->
+		<Entry Keyboard="Text" Placeholder="Text" TextChanged="OnEntryTextChanged"/>
+		<Entry Keyboard="Email" Placeholder="Email"/>
+		<Entry Keyboard="Numeric" Placeholder="Phone"/>
+		<Entry x:Name="pass"  IsPassword="True" Completed="OnPassCompleted" Placeholder="Pass"/>
+		<Label x:Name="label" Text="{Binding Source={x:Reference pass}, Path=Text, StringFormat='{0}'}"/>
+
+		<!--
+		Editor
+		-->
+		<Editor BackgroundColor="Gold" VerticalOptions="FillAndExpand" />
+
+		<!--
+		Picker with static options
+		-->
+		<Picker x:Name="picker1" Title="Picker" SelectedIndexChanged="OnPicker1Selected" >
+			<Picker.Items>
+				<x:String>Opt 1</x:String>
+				<x:String>Opt 2</x:String>
+			</Picker.Items>
+		</Picker>
+
+		<!--
+		Picker with dynamic options
+		-->
+		<Picker  x:Name="picker2" Title="Picker" SelectedIndexChanged="OnPicker2Selected"/>
+
+		<!--
+		DatePicker
+		-->
+		<DatePicker Format="d MMM yyyy" 
+			Date="5 Jan 2016"
+			MinimumDate="1 Jan 2016" 
+			MaximumDate="30 Jan 2016" 
+			DateSelected="OnDateSelected"/>
+
+		<!--
+		DatePicker with current date
+		* Need import System class on mscorlib
+		<ContentPage ...  xmlns:sys="clr-namespace:System;assembly=mscorlib" >
+		-->
+		<DatePicker Format="d MMM yyyy" Date="{x:Static sys:DateTime.Today}" />
+
+		<!--
+		TimePicker
+		* Use Unfocused to detect changes
+		-->
+		<TimePicker x:Name="timePicker"  Time="13:00" Unfocused="OnTimePickerUnfocused"/>
+
+	</StackLayout>
+</ContentPage>

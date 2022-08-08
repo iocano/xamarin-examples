@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+			 x:Class="ImageAspect.MainPage">
+
+	<!--
+	Image aspect
+		AspectFill   Scale the image to fill the view.Some parts may be clipped in order to fill the view.
+		AspectFit    Scale the image to fit the view.Some parts may be left empty(letter boxing).
+		Fill         Scale the image so it exactly fills the view.Scaling may not be uniform in X and Y.
+
+    *Image source is set on Code Behind
+	-->
+
+	<StackLayout>
+		<Image x:Name="image1" Aspect="Fill" />
+	</StackLayout>
+</ContentPage>

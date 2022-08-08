@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+			 x:Class="TableView.MainPage"
+			 xmlns:local="clr-namespace:TableView.extensions"
+			 >
+
+	<StackLayout>
+		<!--
+		CellTypes:
+			TextCell
+			EntryCell
+			SwitchCell
+			ImageCell
+			ViewCell
+		-->
+		<TableView Intent="Settings" >
+			<TableRoot>
+				<TableSection Title="Settings" TextColor="Black" >
+					<TextCell Text="Owner" Detail="Name1" TextColor="Black"/>
+					<EntryCell Label="Title" Placeholder="Shopping"/>
+					<SwitchCell Text="Notifications" On="True"/>
+				</TableSection>
+			</TableRoot>
+		</TableView>
+
+		<!-- 
+		ViewCell (Custom cell)
+		-->
+		<TableView Intent="Settings" >
+			<TableRoot>
+				<TableSection Title="Settings" TextColor="Black" >
+					<ViewCell>
+						<StackLayout Orientation="Horizontal" Padding="17,0">
+							<Label Text="Start" VerticalOptions="Center"/>
+							<DatePicker Date="1 Jan 2016" HorizontalOptions="FillAndExpand"/>
+						</StackLayout>
+					</ViewCell>
+				</TableSection>
+			</TableRoot>
+		</TableView>
+
+		<!-- 
+		Reusable custom cell (custom date cell example)
+			- Create a ViewCell
+				/extensions/DateCell.xaml.cs
+				* Note usage of Bindable property
+					public partial class DateCell : ViewCell {
+						public static readonly BindableProperty LabelProperty =
+							BindableProperty.Create("Label", typeof(string), typeof(DateCell));
+						public string Label {
+							get { return GetValue(LabelProperty) as string; }
+							set { SetValue(LabelProperty, value); }
+						}
+						public DateCell() {
+							InitializeComponent();
+							BindingContext = this;
+						}
+					}
+
+				/extensions/DateCell.xaml
+					<ViewCell ...  x:Class="XamarinExample.Extensions.DateCell" >
+						<StackLayout Orientation="Horizontal" Padding="17,0">
+							<Label Text="{Binding Label}" VerticalOptions="Center"/>
+							<DatePicker Date="1 Jan 2016" HorizontalOptions="FillAndExpand"/>
+						</StackLayout>
+					</ViewCell>
+		-->
+		<!--
+		Usage
+		- Import namespace
+			<contentpage ...  xmlns:local="clr-namespace:ProjectName.extensions" >
+		-->
+		<TableView Intent="Settings" >
+			<TableRoot>
+				<TableSection Title="settings" TextColor="black" >
+					<EntryCell Label="title" Placeholder="shopping"/>
+					<local:DateCell Label="start" />
+					<local:DateCell Label="end" />
+				</TableSection>
+			</TableRoot>
+		</TableView>
+
+		<!--
+		Picker with navigation 
+		* Allow a better control of picker elements
+		* Need MainPage as NavigationPage parameter
+		-->
+		<TableView Intent="Form">
+			<TableRoot>
+				<TableSection>
+					<ViewCell Tapped="ViewCell_Tapped">
+						<StackLayout Orientation="Horizontal" Padding="13, 5">
+							<Label Text="Contact Method" VerticalOptions="Center"/>
+							<Label x:Name="contactMethod"
+											VerticalOptions="Center"
+											HorizontalOptions="EndAndExpand"
+											Text="None"
+											/>
+						</StackLayout>
+					</ViewCell>
+				</TableSection>
+			</TableRoot>
+		</TableView>
+	</StackLayout>
+</ContentPage>

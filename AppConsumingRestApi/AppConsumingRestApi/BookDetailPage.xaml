@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="AppConsumingRestApi.BookDetailPage"
+             Title="{Binding VolumeInfo.Title}" >
+    <ContentPage.Content>
+        <StackLayout >
+            <Image Source="{Binding Path=VolumeInfo.ImageLinks.Thumbnail}" Aspect="AspectFit" HeightRequest="400"/>
+            <Label Text="{Binding Path=VolumeInfo.Title}" FontSize="30"/>
+            <Label Text="{Binding Path=VolumeInfo.PublishedDate}" FontSize="15" TextColor="Gray"/>
+            <Label Text="{Binding Path=VolumeInfo.Description}"/>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

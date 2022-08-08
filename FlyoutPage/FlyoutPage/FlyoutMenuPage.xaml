@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="FlyoutPage.FlyoutMenuPage"
+             Title="FlyoutMenu"
+             xmlns:models ="clr-namespace:FlyoutPage.Models"
+             xmlns:sections ="clr-namespace:FlyoutPage.Sections"
+             >
+    <ListView x:Name="listView" x:FieldModifier="public">
+        <ListView.ItemsSource>
+            <x:Array Type="{x:Type models:FlyoutItemPage}">
+                <models:FlyoutItemPage Title="Home" IconSource="home.png" TargetPage="{x:Type sections:HomePage}"/>
+                <models:FlyoutItemPage Title="Courses" IconSource="courses.png" TargetPage="{x:Type sections:CoursesPage}"/>
+                <models:FlyoutItemPage Title="About" IconSource="about.png" TargetPage="{x:Type sections:AboutPage}"/>
+                <models:FlyoutItemPage Title="Logout" IconSource="logout.png" TargetPage="{x:Type sections:LogoutPage}"/>
+            </x:Array>
+        </ListView.ItemsSource>
+        <ListView.ItemTemplate>
+            <DataTemplate>
+                <ViewCell>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="33"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Image Source="{Binding IconSource}"/>
+                        <Label Grid.Column="1" Text="{Binding Title}"
+                                   VerticalOptions="Center"/>
+                    </Grid>
+                </ViewCell>
+            </DataTemplate>
+        </ListView.ItemTemplate>
+    </ListView>
+</ContentPage>

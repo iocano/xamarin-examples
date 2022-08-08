@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="AppAbsoluteLayout.MainPage">
+
+    <AbsoluteLayout>
+        <Image Source="https://picsum.photos/id/1018/1920/1080" Aspect="AspectFill"
+              AbsoluteLayout.LayoutBounds="0, 0, 1, 1" AbsoluteLayout.LayoutFlags="All" />
+        <Label Text="Title" FontSize="30" 
+            HorizontalOptions="Center"
+               AbsoluteLayout.LayoutBounds="0, 20, 1, 1"
+               AbsoluteLayout.LayoutFlags="XProportional,SizeProportional" />
+
+        <BoxView Opacity=".50" BackgroundColor="Black" 
+                 AbsoluteLayout.LayoutBounds="0, 1, 1, 100"
+                 AbsoluteLayout.LayoutFlags="PositionProportional,WidthProportional"/>
+
+        <StackLayout Orientation="Horizontal"
+            Padding="0, 30"
+            Spacing="80"
+            HorizontalOptions="Center"
+            VerticalOptions="Center"
+            AbsoluteLayout.LayoutBounds="0, 1, 1, 100"
+            AbsoluteLayout.LayoutFlags="PositionProportional,WidthProportional">
+            <Label Text="Page 1" TextColor="White" FontSize="15" HorizontalOptions="Center" />
+            <Label Text="Page 2" TextColor="White" FontSize="15" HorizontalOptions="Center"/>
+            <Label Text="Page 3" TextColor="White" FontSize="15" HorizontalOptions="Center"/>
+        </StackLayout>
+    </AbsoluteLayout>
+
+</ContentPage>

@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ApplicationProperties.MainPage">
+
+    <StackLayout>
+        <!--
+                Application properties
+                    Used to save:
+                        Application settings
+                        Trascient data (data that is not persistent yet)
+                    Data is saved when:
+                        App is going to sleep
+                        App is closed
+                        Save explicitly
+                            Application.Current.SavePropertiesAsync();
+                -->
+        <Entry x:Name="title" 
+                           Text="{Binding Title}" 
+                           Completed="OnChange"/>
+        <Switch x:Name="notifications" 
+            IsToggled="{Binding NotificationsEnabled}" 
+            Toggled="OnChange" />
+    </StackLayout>
+</ContentPage>

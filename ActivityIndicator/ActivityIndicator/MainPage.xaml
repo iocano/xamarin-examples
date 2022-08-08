@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+			 x:Class="ActivityIndicator.MainPage">
+
+	<!--
+	Activity indicator
+	Displays an animation to show that the application is engaged in a lengthy activity
+	-->
+
+	<RelativeLayout>
+
+		<Image x:Name="image" 
+			RelativeLayout.YConstraint="{ConstraintExpression
+				Type=RelativeToParent, 
+				Property=Height, 
+				Factor=.5,
+				Constant=-100 }">
+			<Image.Source>
+				<UriImageSource 
+					Uri="https://picsum.photos/id/1018/1920/1080" 
+					CachingEnabled="False"/>
+			</Image.Source>
+		</Image>
+
+		<ActivityIndicator 
+			RelativeLayout.XConstraint="{ConstraintExpression
+				Type=RelativeToParent, Property=Width, Factor=0.5, Constant=-50 }"
+			RelativeLayout.YConstraint="{ConstraintExpression
+				Type=RelativeToParent, Property=Height, Factor=0.5, Constant=-50 }"
+			IsRunning="{Binding Source={x:Reference image}, Path=IsLoading}" 
+			Color="DarkRed" 
+			WidthRequest="100"
+			HeightRequest="100"
+			/>
+	</RelativeLayout>
+
+</ContentPage>

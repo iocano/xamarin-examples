@@ -1,0 +1,2375 @@
+Xamarin forms
+	A library for develop native apps for android, ios, and windows
+
+
+XAML
+	Extensible application markup language
+
+
+Page types
+	Content
+	MasterDetail
+	Navigation
+	Carousel
+
+The follow are build on top of Mono (FOSS .Net base class library)
+	Xamarin.Android -> IL (also Embed Mono Runtime) -> MR uses JIT compilation -> Native app
+		JIT: Just in time 
+	Xamarin.IOS -> IL -> Apple Compiler uses AOT compilation -> Native 
+		AOT: Ahead-of-time 
+		*No Mono embeded
+	Xamarin.Forms: build on top of Xamarin.Android and Xamarin.IOS
+
+
+Create a Xamarin project: 
+	Select Xamarin forms
+	Create a form
+		Right click project 
+			-> Add new item 
+			-> Xamarin.Forms 
+			-> Content Page
+
+
+Add label
+	XAML: 
+		<ContentPage.Content>
+			<Label Text="Hello world" 
+				VerticalOptions="CenterAndExpand" 
+				HorizontalOptions="CenterAndExpand" />
+		</ContentPage.Content>
+
+	CODE BEHIND:
+		Content = new Label {
+			Text = "Hello world"
+			VerticalOptions = LayoutOptions.CenterAndExpand,
+			HorizontalOptions = LayoutOptions.CenterAndExpand,
+		};
+
+
+ContentPage.Content only allows one element
+	* Use a Layout to contain many elements
+	<ContentPage.Content>
+		<StackLayout VerticalOptions="Center" HorizontalOptions="Center">
+			<Label Text="Hello world" />
+			<Slider/>
+		</StackLayout>
+	</ContentPage.Content>
+
+
+Name Xaml element 
+	* Allow reference element on code behind and by other Xaml elements
+	<Label Text="Hello world" x:Name="label" />
+
+
+Set element content on code (using element name)
+	* All actions with Xaml elements must be executed after InitializeComponent()
+	label.Text = String.Format("Text ...");
+
+
+Slider element and handler
+	XAML: 
+		<Slider ValueChanged="Slider_ValueChanged" x:Name="slider"/>
+
+	CODE BEHIND:
+		private void Slider_ValueChanged(object sender, ValueChangedEventArgs e) 
+			=> label.Text = String.Format("Value is {0:F2}", e.NewValue);
+
+	
+Data binding (reference an Xaml element)
+	<Label x:Name="label" Text="{Binding Source={x:Reference slider}, Path=Value, StringFormat='Value is {0:F2}'}"  />
+	<Slider  x:Name="slider"/>
+
+Alternative binding syntax
+	* To ommit the keyword 'Path Binding Value must be the first part of the expresion between '{' and '}'
+	<Label x:Name="label" Text="{Binding Value, Source={x:Reference slider}, StringFormat='Val: {0:F2}'}" />
+	<Slider  x:Name="slider"/>
+
+
+Binding context (reference an Xaml element)
+	* Binding context can be inherit to element children
+	* Note the alternative binding syntax
+	FROM:
+		<Slider  x:Name="slider"/>
+		<Label 
+			Text="{Binding Value, Source={x:Reference slider}, StringFormat='Value is {0:F2}'}"  
+			Opacity="{Binding Source={x:Reference slider}, Path=Value}" />
+	TO:
+		<Slider  x:Name="slider"/>
+		<Label BindingContext="{x:Reference slider}"
+			Text="{Binding Value, StringFormat='Value is {0:F2}'}"  
+			Opacity="{Binding Value}" />
+
+Bind all object (page instance)
+	XAML: 
+		<Label Text="{Binding Person.Name}" />
+
+	CODE BEHIND:
+		* Only public fields can be access on XAML
+		public partial class ExamplePage : ContentPage{
+			public Person Person { get; set; } = new Person { Name = "Name1", Id = 1 };
+			public ExamplePage() { ... BindingContext = this; }
+		}
+
+Bind specific property/field
+	Xaml
+		<Label Text="{Binding Name}" />
+
+Bind nested property
+	<Label Text="{Binding Path=VolumeInfo.Title}"/>
+
+Alternative Bind nested property
+	<Label Text="{Binding VolumeInfo.Title}"/>
+
+	CODE BEHIND:
+		public partial class ExamplePage : ContentPage{
+			private Person _person = new Person { Name = "Name1", Id = 1 };
+			public ExamplePage() { ... BindingContext = _person; }
+		}
+
+
+Set property based on platform 
+	XAML: 
+		<ContentPage ...> 
+			<ContentPage.Padding>
+				<OnPlatform x:TypeArguments="Thickness">
+					<OnPlatform.Platforms>
+						<On Platform="iOS" Value="0, 20, 0, 0" />
+						<On Platform="Android" Value="0, 100, 0, 0" />
+						<On Platform="UWP" Value="0, 0, 0, 0" />
+					</OnPlatform.Platforms>
+				</OnPlatform>
+			</ContentPage.Padding>
+			...
+
+	CODE BEHIND:
+		switch(Device.RuntimePlatform) {
+			case Device.Android: Padding = new Thickness(10, 20, 0, 0); break;
+			case Device.iOS: Padding = new Thickness(0, 20, 0, 0); break;
+			case Device.WPF: Padding = new Thickness(30, 20, 0, 0); break;
+		}
+
+
+Enable XAML Compilation
+	Benefits:
+		Catch error at compile-time
+		Reduced assembly size
+		Faster loading of XAML elements
+	Enable
+		Xamarin forms Solution -> Properties -> AssemblyInfo
+		ADD:
+		[assembly: XamlCompilation(XamlCompilationOptions.Compile)]
+	Disable compilation for specific file, use XamlCompilation Attribute on code behind 
+		[XamlCompilation(XamlCompilationOptions.Skip)]
+		public partial class GreetPage : ContentPage { /* ... */ }
+
+		
+XAML vs CODE-BEHIND
+	Everything you do with XAML, can be done with code.
+	At run-time, XAML parser will process our XAML files and instantiate C# objects.
+	Use XAML for defining the visual appearance
+	Use C# for implementing behaviour. 
+
+
+Content Property
+	Some XAML elements (eg ContentPage and StackLayout) have a content property.
+	That means, what we put between their start and end tags will be assigned to their
+	content property. And with this, we don't need to explicitly specify the content property.
+	So, INSTEAD OF
+		<ContentPage><ContentPage.Content><Label Text="Sample"/></ContentPage.Content></ContentPage>	
+	We can simply USE:
+	<ContentPage><Label/></ContentPage>
+
+
+StackLayout 
+	* Organizes child views in a one-dimensional stack, either horizontally or vertically
+	XAML:
+		<StackLayout
+			Background="Gold"
+			Orientation="Horizontal"
+			Padding="40"
+			Spacing="20"
+			VerticalOptions=""
+			HorizontalOptions="Center">
+			<StackLayout>
+				<Image Source="https://place-hold.it/100"/>
+				<Label Text="Label 1" Background="Silver"/>
+			</StackLayout>
+			<Label Text="Label 2" Background="Silver"/>
+			<Label Text="Label 3" Background="Silver"/>
+		</StackLayout>
+
+	CODE BEHIND:
+		var layout = new StackLayout {
+			BackgroundColor = Color.Gold,
+			Orientation = StackOrientation.Horizontal,
+			Padding = new Thickness(40),
+			Spacing = 20,
+			VerticalOptions = LayoutOptions.Center,
+			HorizontalOptions = LayoutOptions.Center,
+		};
+		var innerLayout = new StackLayout {
+			Children = {
+				new Image {Source = "https://place-hold.it/100"},
+				new Label {Text = "Label 1", BackgroundColor = Color.Silver}
+			}
+		};
+		layout.Children.Add(innerLayout);
+		layout.Children.Add(new Label { Text = "Label 2", BackgroundColor = Color.Silver});
+		layout.Children.Add(new Label { Text = "Label 3", BackgroundColor = Color.Silver });
+		Content = layout;
+
+
+GridLayout
+	XAML:	
+		<Grid BackgroundColor="Goldenrod" RowSpacing="40" ColumnSpacing="40">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="100"/>
+				<RowDefinition Height="2*"/>
+				<RowDefinition Height="*"/>
+			</Grid.RowDefinitions>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="Auto"/>
+				<ColumnDefinition Width="2*"/>
+				<ColumnDefinition Width="*"/>
+			</Grid.ColumnDefinitions>
+			<Label Grid.Row="0" Grid.Column="0" Text="Label 1" BackgroundColor="Silver"/>
+			<Label Grid.Row="0" Grid.Column="1" Text="Label 2" BackgroundColor="Silver"/>
+			<Label Grid.Row="1" Grid.Column="0" Text="Label 3" BackgroundColor="Silver"/>
+			<Label Grid.Row="1" Grid.Column="1" Text="Label 4" BackgroundColor="Silver"/>
+
+			<Label Grid.Row="2" Grid.ColumnSpan="3" Text="ColumnSpan" BackgroundColor="Silver"/>
+			<Label Grid.Column="2" Grid.RowSpan="3" Text="RowSpan" BackgroundColor="Silver"/>
+		</Grid>
+
+	CODE BEHIND:
+		public partial class MainPage : ContentPage {
+			public MainPage() {
+				InitializeComponent();
+				var grid = new Grid {
+					BackgroundColor = Color.Goldenrod,
+					RowSpacing = 40,
+					ColumnSpacing = 40,
+					RowDefinitions = {
+						new RowDefinition { Height = new GridLength(100, GridUnitType.Absolute) },
+						new RowDefinition { Height = new GridLength(2, GridUnitType.Star) },
+						new RowDefinition { Height = new GridLength(1, GridUnitType.Star) }
+					},
+					ColumnDefinitions = {
+						new ColumnDefinition{Width = GridLength.Auto},
+						new ColumnDefinition{Width = new GridLength(2, GridUnitType.Star)},
+						new ColumnDefinition{Width = new GridLength(1, GridUnitType.Star)},
+					}
+				};
+				var label1 = new Label { Text = "label 1", BackgroundColor = Color.Gold, VerticalOptions = LayoutOptions.Fill };
+				var label2 = new Label { Text = "label 2", BackgroundColor = Color.Gold };
+				var label3 = new Label { Text = "label 3", BackgroundColor = Color.Gold };
+				var label4 = new Label { Text = "label 4", BackgroundColor = Color.Gold };
+				var label5 = new Label { Text = "ColumnSpan", BackgroundColor = Color.Gold };
+				var label6 = new Label { Text = "Rowspan", BackgroundColor = Color.Gold };
+
+				grid.Children.Add(label1, 0, 0);
+				grid.Children.Add(label2, 1, 0);
+				grid.Children.Add(label3, 0, 1);
+				grid.Children.Add(label4, 1, 1);
+				grid.Children.Add(label5, 0, 2);
+				grid.Children.Add(label6, 2, 0);
+
+				// set Span AFTER add to grid
+				Grid.SetColumnSpan(label5, 3);
+				Grid.SetRowSpan(label6, 3);
+
+				// Change row of element
+				// Grid.SetRow(label5, 2);
+				// Grid.SetColumn(label6, 2);
+
+				Content = grid;
+			}
+		}
+
+
+AbsoluteLayout
+	* Used to position and size children using explicit values
+	Set position and size of element
+		AbsoluteLayout.LayoutBound="x,y,w,h"
+		
+	Set proportional units 
+		Proportional values are from 0 to 1
+		No-Proportional values are from 0 to Screen.Width/Height
+		AbsoluteLayout.LayoutFlags=Flag1[,Flag2[,FlagN]]
+		Flags
+			None (Default):			No proportional units
+			All: x,y,w,h			are proportional units
+			WidthProportional:		w is proportional unit
+			HeightProportional:		y is proportional unit
+			XProportional:			x is proportional unit
+			YProportional:			y is proportional unit
+			PositionProportional	x,y are proportional
+			SizeProportional:		w,h are proportional
+	XAML:
+		<AbsoluteLayout>
+			<BoxView Color="Aqua"
+				AbsoluteLayout.LayoutBounds="0, 0, 1, 1"
+				AbsoluteLayout.LayoutFlags="All"/>
+			<BoxView Color="White"
+				AbsoluteLayout.LayoutBounds="0.5, 0.1, 100, 100"
+				AbsoluteLayout.LayoutFlags="PositionProportional"/>
+			<Button Text="Get Started" BackgroundColor="Silver" TextColor="White" 
+				AbsoluteLayout.LayoutBounds="0, 1, 1, 50" 
+				AbsoluteLayout.LayoutFlags="PositionProportional,WidthProportional"/>
+		</AbsoluteLayout>
+
+	CODE BEHIND:
+		var layout = new AbsoluteLayout();
+		var boxView1 = new BoxView { Color = Color.Aqua };
+		var boxView2 = new BoxView { Color = Color.White };
+		var button1 = new Button { Text = "Get Started", BackgroundColor = Color.Silver, TextColor = Color.White };
+
+		layout.Children.Add(boxView1, new Rectangle(0, 0, 1, 1), AbsoluteLayoutFlags.All);
+		layout.Children.Add(boxView2, new Rectangle(0.5, 0.1, 100, 100), AbsoluteLayoutFlags.PositionProportional);
+		layout.Children.Add(button1, new Rectangle(0, 1, 1, 50), AbsoluteLayoutFlags.PositionProportional | AbsoluteLayoutFlags.WidthProportional);
+
+		// Change postion/size
+		// AbsoluteLayout.SetLayoutBounds(boxView1, new Rectangle(0, 0, 2, 2));
+
+		// Chagne units
+		// AbsoluteLayout.SetLayoutFlags(boxView1, AbsoluteLayoutFlags.HeightProportional);
+
+		Content = layout;
+
+RelativeLayout
+	Used to position/size children relative to properties of the layout or sibling elements. 
+
+	ConstraintExpression defines the following properties:
+		Constant(double):		represents the constraint constant value (Add/Substract to final value)
+		ElementName(string):	represents the name of a source element against which to calculate the constraint.
+		Factor(double):			represents the factor by which to scale a constrained dimension, 
+									relative to the source element. This property defaults to 1.
+		Property(string):		represents the name of the property on the source element to use in the constraint calculation.
+		Type(ConstraintType):	represents the type of the constraint.
+
+	ConstraintType
+		Constant			constant constraint.
+		RelativeToParent	constraint that is relative to a parent element.
+		RelativeToView		constraint that is relative to a view.
+
+	XAML:
+		<RelativeLayout>
+			<BoxView Color="Aqua" x:Name="banner"
+				RelativeLayout.WidthConstraint="{ConstraintExpression
+				Type=RelativeToParent, Property=Width, Factor=1 }"
+
+			RelativeLayout.HeightConstraint="{ConstraintExpression
+				Type=RelativeToParent, Property=Height, Factor=0.33}"/>
+
+			<BoxView Color="Silver"
+			RelativeLayout.YConstraint="{ConstraintExpression
+				Type=RelativeToView, ElementName=banner, Property=Height,
+				Factor=1, Constant=30}"/>
+		</RelativeLayout>
+
+	CODE BEHIND:
+		var layout = new RelativeLayout();
+		var box1 = new BoxView { Color = Color.Aqua };
+		layout.Children.Add(box1,
+			widthConstraint: Constraint.RelativeToParent(parent => parent.Width),
+			heightConstraint: Constraint.RelativeToParent(parent => parent.Height * 0.3));
+
+		var box2 = new BoxView { Color = Color.Silver };
+		layout.Children.Add(box2,
+			yConstraint: Constraint.RelativeToView(box1, (l, e) => e.Height + 20));
+
+		Content = layout;
+
+
+Image sources		
+	Platform-independent (App content related)
+		URI
+		Embeded in portable class library (PCL)
+	Platform-Specific(UI: icons, splash screen)
+		Need add to each application project		
+
+Uri Image source
+	XAML:
+	Option 1:
+		*Caching is enabled by default and will store the image locally for 24 hours
+		<Image Source="https://picsum.photos/id/1018/1920/1080" />
+	Option 2:
+		<Image>
+			<Image.Source>
+				<UriImageSource 
+					Uri="https://picsum.photos/id/1018/1920/1080" 
+					CacheValidity="14" 
+					CachingEnabled="True"/>
+			</Image.Source>
+		</Image>
+
+	CODE BEHIND:
+		var layout = new StackLayout();
+		var image1 = new Image();
+		var image2 = new Image();
+		layout.Children.Add(image1);
+		layout.Children.Add(image2);
+
+		// Option 1: Casting to UriImageSource
+		var imageSource1 = (UriImageSource)ImageSource.FromUri(new Uri("https://picsum.photos/id/1018/1920/1080"));
+		image1.Source = imageSource1;
+
+		// Option 2: Better, set directly an UriImageSource
+		var imageSource2 = new UriImageSource { Uri = new Uri("https://picsum.photos/id/1018/1920/1080") };
+		image2.Source = imageSource2;
+
+		// Image cache
+		imageSource2.CachingEnabled = false;
+
+		//Expiration time
+		imageSource2.CacheValidity = TimeSpan.FromHours(1);
+
+		Content = layout;
+
+Activity indicator 
+	Displays an animation to show that the application is engaged in a lengthy activity
+	XAML:
+		* Note cache disabled for test
+		<StackLayout>
+			<Image x:Name="image">
+				<Image.Source>
+					<UriImageSource 
+						Uri="https://picsum.photos/id/1018/1920/1080" 
+						CachingEnabled="False"/>
+				</Image.Source>
+			</Image>
+			<ActivityIndicator 
+				IsRunning="{Binding Source={x:Reference image}, Path=IsLoading}" 
+				Color="DarkRed" 
+				WidthRequest="100"
+				HeightRequest="100"
+			/>
+		</StackLayout>
+
+
+Image aspect
+	AspectFill   Scale the image to fill the view.Some parts may be clipped in order to fill the view.
+	AspectFit    Scale the image to fit the view.Some parts may be left empty(letter boxing).
+	Fill         Scale the image so it exactly fills the view.Scaling may not be uniform in X and Y.
+
+	XAML:
+		<Image x:Name="image" Aspect="AspectFit"/>
+
+	CODE BEHIND:
+		image.Aspect = Aspect.Fill;
+
+
+Embeded image
+	*Doesn't need activity indicator
+
+	Create Images folder on PCL project
+	Right click folder, Add image
+	Right click image, Properties, set Build action to EmbeddedResource
+
+	Set embedded image source on code 
+		image.Source = ImageSource.FromResource("ProjectName.Folder.imageName.ext");
+
+
+EmmbeddedImage Xaml Extension making
+	Create 'MarkupExtensions' folder on PCL project
+	Create 'EmbeddedImage' class that implements IMarkupExtension interface
+	// Allows use of extension without expecify ResourceId attribute explicitly
+	[ContentProperty("ResourceId")]
+	internal class EmbeddedImage : IMarkupExtension {
+		public string ResourceId { get; set; }
+		public object ProvideValue(IServiceProvider serviceProvider) {
+			return string.IsNullOrWhiteSpace(ResourceId) 
+				? null 
+				: ImageSource.FromResource(ResourceId);
+		}
+	}
+
+	Usage: 
+		Import namespace con ContentPage tag
+		* If Extension is in the same project assembly indicate 'assembly' is optional
+		<ContentPage ... xmlns:local="clr-namespace:EmbeddedImage.MarkupExtensions;assembly=EmbeddedImager">
+
+	Option 1: ContentProperty attribute was not implement
+	<Image Source="{local:EmbeddedImage ResourceId=EmbeddedImage.Images.donut.png}"/>
+
+	Option 2: ContentProperty attribute was implement
+	<Image Source="{local:EmbeddedImage EmbeddedImage.Images.donut.png}"/>
+
+
+Platform-specific images		
+	Put images on resources folder for each platform
+		IOS
+			/Resources/image.png (32x32)
+			/Resources/image@2x.png (64x64)
+			/Resources/image@3x.png (96x96)
+		Android
+			/Resources/drawable/image.png (32x32)
+			/Resources/drawable-hdpi/image.png (48x48)
+			/Resources/drawable-xhdpi/image.png (64x64)
+			/Resources/drawable-xxhdpi/image.png (96x96)
+	Usage
+		XAML:	
+			Same image for all devices
+				<Image Source="image.png" />
+
+			Diferent image for each platform
+				<Button  x:Name="button1">
+					<Button.ImageSource>
+						<OnPlatform x:TypeArguments="FileImageSource">
+							<On Platform="iOS" Value="imageIOS.png"/>
+							<On Platform="Android" Value="imageAndroid.png"/>
+							<On Platform="UWP" Value="Images/imageWin.png"/>
+						</OnPlatform>
+					</Button.ImageSource>
+				</Button>
+
+		CODE BEHIND:
+			Same image for all devices
+				button1.ImageSource = "image.png";
+			Diferent image for each platform
+				switch(Device.RuntimePlatform) {
+					case Device.iOS: button1.ImageSource = "imageIOS.png";break;
+					case Device.Android: button1.ImageSource = "imageAndroid.png";break;
+					case Device.WPF: button1.ImageSource = "/Images/imageWin.png";break;
+				}
+
+
+Application Icon
+	Right click on Android project -> Properties -> Android Manifest -> Application icon	
+
+
+Rounded images
+	Install plugin on PCL project and Client projects from nuget
+		https://www.nuget.org/packages/Xam.Plugins.Forms.ImageCircle
+	Init plugin on each platform after specific init() method (Xamarin.Forms.Init())
+		ImageCircleRenderer.Init(); 
+	Init files
+		IOS:		AppDelegate.cs
+		Android:	MainActivity.cs
+		Windows:	App.xaml.cs
+	Add namespace to ContentPage Tag
+		<ContentPage ... xmlns:ic="clr-namespace:ImageCircle.Forms.Plugin.Abstractions;assembly=ImageCircle.Forms.Plugin">
+	Usage:
+		<ic:CircleImage 
+			WidthRequest="200"
+			HeightRequest="200"
+			VerticalOptions="Center"
+			HorizontalOptions="Center"
+			Aspect="AspectFill"
+			Source="https://picsum.photos/id/1018/1920/1080"/>
+
+
+ListView Simple
+	String ListView: ItemsSource on XAML
+		XAML:	
+			<ListView x:Name="list1">
+				<ListView.ItemsSource>
+					<x:Array Type="{x:Type x:String}">
+						<x:String>String 1</x:String>
+						<x:String>String 2</x:String>
+					</x:Array>
+				</ListView.ItemsSource>
+			</ListView>
+
+	String ListView: ItemsSource on Code behind
+		XAML:	
+			<ListView x:Name="list2"/>
+
+		CODE BEHIND:
+			list2.ItemsSource = new List<string> { "String 1", "String 2"};
+
+	String ListView with custom cell 
+		XAML:	
+			<ListView x:Name="list3">
+				<ListView.ItemTemplate>
+					<DataTemplate>
+						<ViewCell>
+							<StackLayout HorizontalOptions="Center">
+								<Label Text="{Binding .}"/>
+							</StackLayout>
+						</ViewCell>
+					</DataTemplate>
+				</ListView.ItemTemplate>
+			</ListView>
+
+		CODE BEHIND:
+			list3.ItemsSource = new List<string> { "Cujo", "It", "Carrie" };
+
+ListView separator and color
+	XAML:
+		<ListView x:Name="list4" SeparatorVisibility="Default" SeparatorColor="Black" />
+
+	CODE BEHIND:
+		list4.ItemsSource = new List<string> { "The Raven", "The Oval Portrait"};
+
+Expand rows to content
+	<ListView ... HasUnevenRows="True">...</ListView>
+
+ListView Complex
+	* Need to define ItemTemplate
+	Cell types
+		TextCell
+		ImageCell
+		ViewCell (Custom cell)
+
+
+	XAML:
+	TextCell:
+		<ListView x:Name="list1" SeparatorVisibility="Default" SeparatorColor="Gray">
+			<ListView.ItemTemplate>
+				<DataTemplate>
+					<TextCell Text="{Binding Name}" Detail="{Binding Status}"/>
+				</DataTemplate>
+			</ListView.ItemTemplate>
+		</ListView>
+
+	ImageCell:
+		<ListView x:Name="list2" SeparatorVisibility="Default" SeparatorColor="Gray">
+			<ListView.ItemTemplate>
+				<DataTemplate>
+					<ImageCell Text="{Binding Name}" Detail="{Binding Status}" ImageSource="{Binding ImageUrl}" />
+				</DataTemplate>
+			</ListView.ItemTemplate>
+		</ListView>
+	
+	ViewCell:
+		* HasUnevenRows ensure a constant size for all rows
+		<ListView x:Name="list3" HasUnevenRows="True">
+			<ListView.ItemTemplate>
+				<DataTemplate>
+					<ViewCell>
+						<StackLayout Orientation="Horizontal" Padding="5">
+							<Image Source="{Binding ImageUrl}" HeightRequest="80" WidthRequest="80"/>
+							<StackLayout HorizontalOptions="StartAndExpand">
+								<Label Text="{Binding Name}"/>
+								<Label Text="{Binding Status}" TextColor="Gray"/>
+							</StackLayout>
+							<Button Text="Follow"/>
+						</StackLayout>
+					</ViewCell>
+				</DataTemplate>
+			</ListView.ItemTemplate>
+		</ListView>
+
+	CODE BEHIND:
+		public partial class MainPage : ContentPage {
+			public MainPage() {
+				InitializeComponent();
+				list1.ItemsSource = GetContactList();
+				list2.ItemsSource = GetContactList();
+				list3.ItemsSource = GetContactList();
+			}
+
+			private IEnumerable<Contact> GetContactList() {
+				return new List<Contact> {
+					new Contact {
+						Name = "Name1",
+						ImageUrl = "https://faces-img.xcdn.link/image-lorem-face-11.jpg",
+						Status = "Available"
+					},
+					new Contact {
+						Name = "Name2",
+						ImageUrl = "https://faces-img.xcdn.link/image-lorem-face-17.jpg",
+						Status = "Available"
+					}
+				};
+			}
+
+		}
+
+		public class Contact {
+			public string Name { get; set; }
+			public string Status { get; set; }
+			public string ImageUrl { get; set; }
+		}
+
+
+
+ListView Grouping items
+	XAML:
+		<ListView x:Name="list4" HasUnevenRows="True"
+						  IsGroupingEnabled="True"
+						  GroupDisplayBinding="{Binding Title}"
+						  GroupShortNameBinding="{Binding ShortTitle}" >
+			<ListView.ItemTemplate>
+				<DataTemplate>
+					<TextCell Text="{Binding Name}" Detail="{Binding Status}"/>
+				</DataTemplate>
+			</ListView.ItemTemplate>
+		</ListView>
+
+	CODE BEHIND:
+		* Note ContactGroup is derived from List<Contact>
+		* ListView uses ContactGroup Title and Shortitle 
+		public partial class MainPage : ContentPage {
+			public MainPage() {
+				InitializeComponent();
+				list4.ItemsSource = GetContactGroups();
+			}
+
+			private List<ContactGroup> GetContactGroups() {
+				return new List<ContactGroup> {
+					new ContactGroup("A", "A") {
+						new Contact { Name = "Name A", Status = "Available" }, 
+					},
+					new ContactGroup("T", "T") {
+						new Contact { Name = "Name T", Status = "Available" },
+					}
+				};
+			}
+		}
+
+		public class Contact {
+			public string Name { get; set; }
+			public string ImageUrl { get; set; }
+		}
+
+		public class ContactGroup : List<Contact> {
+			public string Title { get; set; }
+			public string ShortTitle { get; set; }
+			public ContactGroup(string title, string shortTitle) {
+				Title = title;
+				ShortTitle = shortTitle;
+			}
+		}
+
+
+ListView Handling Selections
+	XAML:
+		<ListView x:Name="list"
+			ItemTapped="listView_ItemTapped"
+			ItemSelected="listView_ItemSelected" >
+			<ListView.ItemTemplate>
+				<DataTemplate>
+					<TextCell Text="{Binding Name}" Detail="{Binding Status}"/>
+				</DataTemplate>
+			</ListView.ItemTemplate>
+		</ListView>
+
+	CODE BEHIND:
+		public partial class MainPage : ContentPage {
+			public MainPage() {
+				InitializeComponent();
+				list.ItemsSource = GetContactList();
+			}
+
+			private void listView_ItemTapped(object sender, ItemTappedEventArgs e) {
+				var contact = e.Item as Contact;
+				DisplayAlert("Tapped", contact.Name, "Ok");
+			}
+
+			private void listView_ItemSelected(object sender, SelectedItemChangedEventArgs e) {
+				if (list.SelectedItem == null) { return; }
+				list.SelectedItem = null;
+				var contact = e.SelectedItem as Contact;
+				DisplayAlert("Selected", contact.Name, "Ok");
+			}
+
+			private IEnumerable<Contact> GetContactList() {
+				return new List<Contact> {
+					new Contact { Name = "Name1", Status = "Available" },
+					new Contact { Name = "Name2", Status = "Available" }
+				};
+			}
+		}
+
+		public class Contact {
+			public string Name { get; set; }
+			public string Status { get; set; }
+		}
+
+
+ListView Context Actions
+	XAML:	
+	* Use '{Binding .}' to get full mmodel (Item) access on handlers
+	* Is Destructive change button style
+		<ListView x:Name="list">
+			<ListView.ItemTemplate>
+				<DataTemplate>
+					<TextCell Text="{Binding Name}" Detail="{Binding Status}">
+						<TextCell.ContextActions>
+							<MenuItem Text="Call" CommandParameter="{Binding .}" Clicked="Call_Clicked"/>
+							<MenuItem Text="Delete" Clicked="Delete_Clicked" CommandParameter="{Binding .}" IsDestructive="True"/>
+						</TextCell.ContextActions>
+					</TextCell>
+				</DataTemplate>
+			</ListView.ItemTemplate>
+		</ListView>
+
+	CODE BEHIND:
+	* Use ObservableCollection to track changes on list
+	* ObservableCollection<> Notify to its subscribers when an alement is added/removed
+	* Xamarin ListView can handle ObservableCollection functionality
+		public partial class MainPage : ContentPage {
+			private ObservableCollection<Contact> _contacts { get; set; }
+
+			public MainPage() {
+				InitializeComponent();
+				_contacts = GetContactList();
+				list.ItemsSource = _contacts;
+			}
+
+			private ObservableCollection<Contact> GetContactList() {
+				return new ObservableCollection<Contact> {
+					new Contact { Name = "Name1", Status = "Available" },
+					new Contact { Name = "Name2", Status = "Available" }
+				};
+			}
+
+			private void Call_Clicked(object sender, EventArgs e) {
+				var menuItem = sender as MenuItem;
+				var contact = menuItem.CommandParameter as Contact;
+				DisplayAlert("Call", contact.Name, "OK");
+			}
+
+			private void Delete_Clicked(object sender, EventArgs e) {
+				var menuItem = sender as MenuItem;
+				var contact = menuItem.CommandParameter as Contact;
+				_contacts.Remove(contact);
+			}
+
+			private void list_ItemSelected(object sender, SelectedItemChangedEventArgs e)
+				=> list.SelectedItem = null;
+
+		}
+
+		public class Contact {
+			public string Name { get; set; }
+			public string Status { get; set; }
+		}
+
+
+ListView Search Bar
+	XAML:	
+		<StackLayout>
+			<SearchBar  Placeholder="Search..." TextChanged="SearchBar_TextChanged"/>
+			<ListView x:Name="list" >
+				<ListView.ItemTemplate>
+					<DataTemplate>
+						<TextCell Text="{Binding Name}" Detail="{Binding Status}"/>
+					</DataTemplate>
+				</ListView.ItemTemplate>
+			</ListView>
+		</StackLayout>
+
+	CODE BEHIND:
+		public partial class MainPage : ContentPage {
+			private List<Contact> _contacts = new List<Contact> {
+				new Contact { Name = "Name1", Status = "Available" },
+				new Contact { Name = "Name2", Status = "Available" }
+			};
+
+			public MainPage() {
+				InitializeComponent();
+				list.ItemsSource = GetContactList();
+			}
+
+			private void SearchBar_TextChanged(object sender, TextChangedEventArgs e)
+				=> list.ItemsSource = GetContactList(e.NewTextValue);
+
+			private IEnumerable<Contact> GetContactList(string search = "")
+				=> _contacts.Where(c => c.Name.Contains(search));
+
+		}
+
+		public class Contact {
+			public string Name { get; set; }
+			public string Status { get; set; }
+		}
+
+
+ListView Refresh
+	XAML:	
+		<ListView x:Name="list" IsPullToRefreshEnabled="True"  Refreshing="List_Refreshing">
+			<ListView.ItemTemplate>
+				<DataTemplate>
+					<TextCell Text="{Binding Name}" Detail="{Binding Status}"/>
+				</DataTemplate>
+			</ListView.ItemTemplate>
+		</ListView>
+	CODE BEHIND:
+		public partial class MainPage : ContentPage {
+			private ObservableCollection<Contact> _contacts = new ObservableCollection<Contact> {
+				new Contact { Name = "Name1", Status = "Available" },
+				new Contact { Name = "Name2", Status = "Available" }
+			};
+
+			public MainPage() {
+				InitializeComponent();
+				list.ItemsSource = _contacts;
+			}
+
+			private void List_Refreshing(object sender, EventArgs e) {
+				// simulating new info comming from server
+				_contacts.Add( new Contact { Name = "Contact" + _contacts.Count, Status = "Available" });
+				list.EndRefresh();
+			}
+
+		}
+
+		public class Contact {
+			public string Name { get; set; }
+			public string Status { get; set; }
+		}
+
+
+Navigation
+	* NavigationPage provides hierarchical navigation, allows forwards and backwards pages
+	* Modal page encourages users to complete a task that cannot be navigated away from until is completed or cancelled.
+	App.xaml.cs
+		Initialize MainPage as NavigationPage() argument 
+			MainPage = new NavigationPage(new WelcomePage());
+
+		To change Nav bar background/text color set BarBackgroundColor and BarTextColor properties
+			MainPage = new NavigationPage(new WelcomePage()) {
+				BarBackgroundColor = Color.Black,
+				BarTextColor = Color.IndianRed
+			};
+
+	MainPage.xaml
+		<ContentPage Title="Main Page Title">
+			<StackLayout HorizontalOptions="Center" VerticalOptions="Center">
+				<Label Text="Main Page" HorizontalOptions="Center"/>
+
+				<Button Text="Go to Target Page" Clicked="Button_Clicked"/>
+				<Button Text="Go to Modal Target Page" Clicked="ModalButton_Clicked"/>
+			</StackLayout>
+		</ContentPage>
+
+	MainPage.xaml.cs
+		public partial class MainPage : ContentPage {
+			public MainPage()
+				=> InitializeComponent();
+
+			async private void Button_Clicked(object sender, EventArgs e)
+				=> await Navigation.PushAsync(new TargetPage());
+
+			async private void ModalButton_Clicked(object sender, EventArgs e)
+				=> await Navigation.PushModalAsync(new ModalTargetPage());
+		}
+
+	TargetPage.xaml
+		<ContentPage Title="Target Page Title" >
+			<StackLayout HorizontalOptions="Center" VerticalOptions="Center">
+				<Label Text="Target Page" HorizontalOptions="Center"/>
+				<Button Text="Back to Main Page" Clicked="Button_Clicked"/>
+			</StackLayout>
+		</ContentPage>
+
+	TargetPage.xaml.cs
+		public partial class TargetPage : ContentPage {
+			public TargetPage()
+				=>  InitializeComponent();
+
+			async private void Button_Clicked(object sender, EventArgs e)
+				=> await Navigation.PopAsync();
+
+			protected override bool OnBackButtonPressed() => true;
+		}
+
+	ModalTargetPage.xaml
+		<ContentPage Title="Modal Target Page Title" >
+			<StackLayout HorizontalOptions="Center" VerticalOptions="Center">
+				<Label Text="Modal Target Page" HorizontalOptions="Center"/>
+				<Button Text="Back to Main Page" Clicked="Button_Clicked"/>
+			</StackLayout>
+		</ContentPage>
+
+	ModalTargetPage.xaml
+		public partial class ModalTargetPage : ContentPage {
+			public ModalTargetPage()
+				=> InitializeComponent();
+
+			private void Button_Clicked(object sender, EventArgs e)
+				=> Navigation.PopModalAsync();
+		}
+
+	Disable navigation bar (individual page)
+		<ContentPage ...  NavigationPage.HasNavigationBar="False" >
+
+	Disable back button on Navigation bar 
+		<ContentPage ... NavigationPage.HasBackButton="False" >
+	
+	Disable physical BackButton
+		protected override bool OnBackButtonPressed() => true;
+
+
+Simple Master-Detail
+	Manages two related pages of information.
+		Master page: contains a collection of items
+		Detail page: contain info about specific item
+
+
+	* Wrap MainPage instance inside NavigationPage (App.xaml.cs)
+	MasterPage.xaml
+		<ListView x:Name="list" ItemSelected="ListView_ItemSelected" >
+			<ListView.ItemTemplate>
+				<DataTemplate>
+					<TextCell Text="{Binding Name}" Detail="{Binding Status}"/>
+				</DataTemplate>
+			</ListView.ItemTemplate>
+		</ListView>
+
+	MasterPage.xaml.cs
+		  public partial class MasterPage : ContentPage {
+			public MasterPage() {
+				InitializeComponent();
+				list.ItemsSource = new List<Contact>() {
+					new Contact {Name="Contact 1", Status = "Available"},
+					new Contact {Name="Contact 2", Status = "Bussy"},
+				};
+			}
+
+			private async void ListView_ItemSelected(object sender, SelectedItemChangedEventArgs e) {
+				if (list.SelectedItem == null) { return; }
+					
+				list.SelectedItem = null; // remove highlight
+
+				var contact = e.SelectedItem as Contact;
+
+				// Ways to send data to detail page:
+				// On constructor
+				await Navigation.PushAsync(new DetailPage(contact));
+
+				// Setting Contact property
+				// Navigation.PushAsync(new DetailPage() { Contact = contact });
+
+				// Setting BindingContext
+				// Navigation.PushAsync(new DetailPage() { BindingContext = contact });
+			}
+
+		}
+
+		public class Contact {
+			public string Name { get; set; }
+			public string Status { get; set; }
+		}
+
+	DetailPage.xaml
+		<Label Text="{Binding Name}"/>
+
+	DetailPage.xaml.cs
+		public partial class DetailPage : ContentPage {
+			public DetailPage(Contact contact) {
+				InitializeComponent();
+				BindingContext = contact;
+			}
+		}
+
+
+MasterDetail Page (OBSOLETE)
+	Derives from Page
+	Has Properties Master and Detail (Also derives from Page)
+
+
+FlyoutPage
+* Each section is an individual page
+* Need a default page (this case HomePage)
+
+	/Models/FlyoutItemPage.cs
+		public class FlyoutItemPage {
+			public string Title { get; set; }
+			public string IconSource { get; set; }
+			public Type TargetPage { get; set; }
+		}
+
+	/Sections/HomePage.xaml
+		<ContentPage ... Title="Home" >
+			<Label x:Name="label"/>
+		</ContentPage>
+
+	/Sections/HomePage.xaml.cs
+		public partial class HomePage : ContentPage {
+			public HomePage() => InitializeComponent();
+			public HomePage(FlyoutItemPage item) : this()
+				=> label.Text = item.Title;
+		}
+ 
+	/Sections/CoursesPage.xaml
+		<ContentPage ...  Title="Courses" >
+			<Label x:Name="label"/>
+		</ContentPage>
+
+	/Sections/CoursesPage.xaml.cs
+		public partial class CoursesPage : ContentPage {
+			public CoursesPage() => InitializeComponent();
+			public CoursesPage(FlyoutItemPage item) : this()
+				=> label.Text = item.Title;
+		}
+
+	/FlyoutMenuPage.xaml
+	* Need Title (FlyoutMenuPage must have Title property set, or an exception will occur.)
+	* Put images for each platform
+	* listView is public (x:FieldModifier="public"), so can be accessed on 
+
+		<ContentPage Title="FlyoutMenu"
+				 xmlns:models ="clr-namespace:FlyoutPage.Models"
+				 xmlns:sections ="clr-namespace:FlyoutPage.Sections" >
+			<ListView x:Name="listView" x:FieldModifier="public">
+				<ListView.ItemsSource>
+					<x:Array Type="{x:Type models:FlyoutItemPage}">
+						<models:FlyoutItemPage 
+							Title="Home" 
+							IconSource="home.png" 
+							TargetPage="{x:Type sections:HomePage}"/>
+						<models:FlyoutItemPage 
+							Title="Courses" 
+							IconSource="courses.png" 
+							TargetPage="{x:Type sections:CoursesPage}"/>
+					</x:Array>
+				</ListView.ItemsSource>
+				<ListView.ItemTemplate>
+					<DataTemplate>
+						<ViewCell>
+							<Grid>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="33"/>
+									<ColumnDefinition Width="*"/>
+								</Grid.ColumnDefinitions>
+								<Image Source="{Binding IconSource}"/>
+								<Label Grid.Column="1" Text="{Binding Title}" VerticalOptions="Center"/>
+							</Grid>
+						</ViewCell>
+					</DataTemplate>
+				</ListView.ItemTemplate>
+			</ListView>
+		</ContentPage>
+
+	/FlyoutMenuPage.xaml.cs
+	* Contains an exampole of filling menu options with code
+		public partial class FlyoutMenuPage : ContentPage {
+			public FlyoutMenuPage() {
+				InitializeComponent();
+				// listView.ItemsSource = new List<FlyoutItemPage>
+				// {
+				//     new FlyoutItemPage{Title="Home", TargetPage = typeof(HomePage), IconSource="home"},
+				//     new FlyoutItemPage{Title="Courses Offered", TargetPage = typeof(CoursesPage), IconSource="courses"},
+				// };
+			}
+		}
+
+	/MainPage.xaml
+	* Note that HomePage is default page
+			<FlyoutPage xmlns:local ="clr-namespace:FlyoutPage"
+				 xmlns:sections ="clr-namespace:FlyoutPage.Sections" >
+				<FlyoutPage.Flyout>
+					<local:FlyoutMenuPage x:Name="flyout" />
+				</FlyoutPage.Flyout>
+				<FlyoutPage.Detail>
+					<NavigationPage>
+						<x:Arguments>
+							<sections:HomePage/>
+						</x:Arguments>
+					</NavigationPage>
+				</FlyoutPage.Detail>
+			</FlyoutPage>
+
+	/MainPage.xaml.cs
+		public partial class MainPage : Xamarin.Forms.FlyoutPage {
+			public MainPage() {
+				InitializeComponent();
+				flyout.listView.ItemSelected += OnSelectedItem;
+			}
+
+			private void OnSelectedItem(object sender, SelectedItemChangedEventArgs e) {
+				if (e.SelectedItem is FlyoutItemPage item) {
+					Detail = new NavigationPage((Page)Activator.CreateInstance(item.TargetPage, item));
+					flyout.listView.SelectedItem = null;
+					// hide flyout menu after select item 
+					IsPresented = false;
+				}
+			}
+		}
+
+
+TabbedPage
+	MainPage.xaml
+		<TabbedPage ...  xmlns:local="clr-namespace:TabbedPage" >
+			<ContentPage Title="Page 1" IconImageSource="courses">
+				<Label Text="Content 1" HorizontalOptions="Center" VerticalOptions="Center"/>
+			</ContentPage>
+			<ContentPage Title="Page 2" IconImageSource="about">
+				<Label Text="Content 2" HorizontalOptions="Center" VerticalOptions="Center"/>
+			</ContentPage>
+			<local:HomePage Title="Home" IconImageSource="home"/>
+		</TabbedPage>
+
+	MainPage.xaml.cs
+		public partial class MainPage : Xamarin.Forms.TabbedPage {
+			public MainPage() {
+				InitializeComponent();
+				// ContantPage created at fly
+				// var homePage = new ContentPage
+				// {
+				//     Title = "Home",
+				//     Content = new Label { Text = "Home page" }
+				// };
+				// Children.Add(homePage);
+			}
+		}
+
+	HomePage.xaml
+		<ContentPage ...>
+			<Label Text="Home" HorizontalOptions="Center" VerticalOptions="Center"/>
+		</ContentPage>
+
+
+CarouselPage 
+* Superseded by CarouselView
+	<CarouselPage ... >
+		<ContentPage><Label Text="Page1"/></ContentPage>
+		<ContentPage><Label Text="Page2"/></ContentPage>
+	</CarouselPage>
+
+
+CarouselView
+	MainPage.xaml
+	<ContentPage ... >
+		<CarouselView ItemsSource="{Binding Monkeys}" >
+			<CarouselView.ItemTemplate>
+				<DataTemplate>
+					<Label Text="{Binding Name}" />
+				</DataTemplate>
+			</CarouselView.ItemTemplate>
+		</CarouselView>
+	</ContentPage>
+
+
+CarouselView
+	MainPage.xaml
+	- Set Binding context to instance (BindingContext = this)
+	- Create a class with the same properties that json array element
+	* Clear list on OnAppearing method (every time page is shown a http request is made)
+	<ContentPage ... >
+		<StackLayout>
+			<IndicatorView x:Name="monkeysIndicator" 
+						   IndicatorColor="LightGray" 
+						   SelectedIndicatorColor="Gray" 
+						   IndicatorsShape="Circle" 
+						   Margin="0,50,0,0" 
+						   VerticalOptions="FillAndExpand" 
+						   HorizontalOptions="FillAndExpand" />
+
+			<CarouselView ItemsSource="{Binding Monkeys}" 
+				IndicatorView="{x:Reference monkeysIndicator}">
+				<CarouselView.ItemTemplate>
+					<DataTemplate>
+						<StackLayout>
+							<Frame HasShadow="True" 
+								   BorderColor="DarkGray" 
+								   CornerRadius="5" 
+								   Margin="20" 
+								   HeightRequest="300" 
+								   VerticalOptions="CenterAndExpand" >
+								<StackLayout>
+									<Label Text="{Binding Name}" 
+										   FontAttributes="Bold" 
+										   FontSize="Large" 
+										   HorizontalOptions="Center" 
+										   VerticalOptions="Center" />
+									<Image Source="{Binding Image}" 
+										   Aspect="AspectFill" 
+										   HeightRequest="150" WidthRequest="150" 
+										   HorizontalOptions="Center" />
+									<Label Text="{Binding Details}" />
+								</StackLayout>
+							</Frame>
+						</StackLayout>
+					</DataTemplate>
+				</CarouselView.ItemTemplate>
+			</CarouselView>
+		</StackLayout>
+	</ContentPage>
+
+	MainPage.xaml.cs
+		public partial class MainPage : ContentPage {
+			public ObservableCollection<Monkey> Monkeys { get; set; }
+				= new ObservableCollection<Monkey>();
+			private HttpClient _httpClient = new HttpClient();
+			private const string _jsonUrl = "https://montemagno.com/monkeys.json";
+
+			public MainPage() {
+				InitializeComponent();
+				BindingContext = this;
+			}
+
+			protected async override void OnAppearing() {
+				base.OnAppearing();
+				var monkeysJson = await _httpClient.GetStringAsync(_jsonUrl);
+				Monkeys.Clear(); // every time that view is show a get request is make
+				var monkeys = JsonConvert.DeserializeObject<Monkey[]>(monkeysJson);
+				foreach (var monkey in monkeys)
+					Monkeys.Add(monkey);
+			}
+
+		}
+
+		public class Monkey {
+			public string Name { get; set; }
+			public string Details { get; set; }
+			public string Image { get; set; }
+			public int Population { get; set; }
+			public double Latitude { get; set; }
+			public double Longitude { get; set; }
+		}
+
+
+Confirm box
+	var response = await DisplayAlert("Save Changes","Are yout sure?","Yes", "No");
+	if (response)
+		await DisplayAlert("Done", "Your data is saved", "Ok");
+
+Context menu
+	var response = await DisplayActionSheet( "Title", "CancelMsg", "Opt1", "Opt2", "OptN");
+	await DisplayAlert("Response", response, "Ok");
+
+
+Toolbars
+	* Need NavigationPage Wrapper (App.xaml.cs)
+	* Order="Primary"(default) display Options on toolbar
+	* Order="Secondary" display Options on Kebab click 
+	* Use https://www.img-bak.in to bake android image assets
+	- Create images on each platform
+
+	MainPage.xaml
+		<ContentPage ...>
+			<ContentPage.ToolbarItems >
+				<ToolbarItem Text="Add" IconImageSource="add.png" Clicked="AddClicked"/>
+				<ToolbarItem Text="Open" IconImageSource="open.png" Clicked="OpenClicked"/>
+				<!--
+				Order secondary are displayed on kebab click
+				-->
+				<ToolbarItem Text="Save" Order="Secondary" Clicked="SaveClicked" />
+				<ToolbarItem Text="Exit" Order="Secondary" Clicked="ExitClicked"/>
+			</ContentPage.ToolbarItems>
+		</ContentPage>
+
+	MainPage.xaml.cs
+		public partial class MainPage : ContentPage {
+			public MainPage() => InitializeComponent();
+			private void AddClicked(object sender, EventArgs e) { }
+			private void SaveClicked(object sender, EventArgs e) { }
+			private void ExitClicked(object sender, EventArgs e) { }
+			private void OpenClicked(object sender, EventArgs e) { }
+		}
+	
+
+Controls
+	Switch	
+		XAML:
+			<StackLayout Orientation="Horizontal">
+				<Switch IsToggled="True" x:Name="switch" Toggled="OnSwitchToggled" HorizontalOptions="StartAndExpand"/>
+				<Label Text="Content" IsVisible="{Binding Source={x:Reference switch}, Path=IsToggled}" HorizontalOptions="CenterAndExpand"/>
+				<Label Text="{Binding Source={x:Reference switch}, Path=IsToggled, StringFormat='Switch is: {0}'}" HorizontalOptions="EndAndExpand"/>
+			</StackLayout>
+
+		CODE BEHIND:
+			private void OnSwitchToggled(object sender, ToggledEventArgs e)
+				=> DisplayAlert("Switch", "Switch: " + e.Value, "Ok");
+
+
+	Slider
+		XAML:
+		* To set min/max is needed set first the propertty maximum (1 is default max, cause exception if minimum is set first)
+		* Note string format: show integer part of number
+			<StackLayout Orientation="Horizontal" >
+				<Slider x:Name="slider" Maximum="255" Minimum="1" Value="100"  ValueChanged="OnSliderValueChanged" HorizontalOptions="FillAndExpand"/>
+				<Label Text="{Binding Source={x:Reference slider}, Path=Value, StringFormat='Slider Value: {0:N0}'}"/>
+			</StackLayout>
+
+		CODE BEHIND:
+			private void OnSliderValueChanged(object sender, ValueChangedEventArgs e) {
+				int oldVal = (int)e.OldValue;
+				int newVal = (int)e.NewValue;
+				DisplayAlert("Slider", "Old: " + oldVal + " New: " + newVal, "Ok");
+			}
+
+
+	Stepper
+		XAML:
+			<StackLayout Orientation="Horizontal">
+				<Stepper x:Name="stepper" Maximum="100" Minimum="0" Increment="5" ValueChanged="OnStepperValueChanged"/>
+				<Label Text="{Binding Source={x:Reference stepper}, Path=Value, StringFormat='Stepper {0}'}"/>
+			</StackLayout>
+
+		CODE BEHIND:
+			private void OnStepperValueChanged(object sender, ValueChangedEventArgs e) {
+				var oldVal = e.OldValue;
+				var newVal = e.NewValue;
+				DisplayAlert("Stepper", "Old: " + oldVal + " New: " + newVal, "Ok");
+			}
+
+
+	Entry
+		XAML:
+		* Complete event is trigger on enter
+			<Entry Keyboard="Text" Placeholder="Text" TextChanged="OnEntryTextChanged"/>
+			<Entry Keyboard="Email" Placeholder="Email"/>
+			<Entry Keyboard="Numeric" Placeholder="Phone"/>
+			<Entry x:Name="pass"  IsPassword="True" Completed="OnPassCompleted" Placeholder="Pass"/>
+			<Label x:Name="label" Text="{Binding Source={x:Reference pass}, Path=Text, StringFormat='{0}'}"/>
+
+		CODE BEHIND:
+			private void OnEntryTextChanged(object sender, TextChangedEventArgs e) {
+				var oldVal = e.OldTextValue;
+				var newVal = e.NewTextValue;
+				DisplayAlert("Entry", "Old: " + oldVal + " New: " + newVal, "Ok");
+			}
+			private void OnPassCompleted(object sender, EventArgs e)
+				=> DisplayAlert("Pass", "Complete", "Ok"); 
+
+
+	Editor
+		XAML:
+			<Editor BackgroundColor="Gold" VerticalOptions="FillAndExpand" />
+
+
+	Picker with static options
+		XAML:
+			<Picker x:Name="picker1" Title="Picker" SelectedIndexChanged="OnPicker1Selected" >
+				<Picker.Items>
+					<x:String>Opt 1</x:String>
+					<x:String>Opt 2</x:String>
+				</Picker.Items>
+			</Picker>
+
+		CODE BEHIND:
+			private void OnPicker1Selected(object sender, EventArgs e) {
+				var option = picker1.Items[picker1.SelectedIndex];
+				DisplayAlert("Selection", option, "Ok");
+			}
+
+
+	Picker with dynamic options
+		XAML:
+			<Picker  x:Name="picker2" Title="Picker" SelectedIndexChanged="OnPicker2Selected"/>
+
+		CODE BEHIND:
+			public class Option {
+				public int Id { get; set; }
+				public string Name { get; set; }
+			}
+			public partial class MainPage : ContentPage {
+				private List<Option> _options = new List<Option> {
+					new Option { Id = 1, Name = "Opt 1" },
+					new Option { Id = 2, Name = "Opt 2" }
+				};
+				public MainPage() {
+					InitializeComponent();
+					foreach (var option in _options) { picker2.Items.Add(option.Name); }
+				}
+				private void OnPicker2Selected(object sender, EventArgs e) {
+					var name = picker2.Items[picker2.SelectedIndex];
+					var option = _options.Single(o => o.Name == name);
+					DisplayAlert("Selected", "Name: " + option.Name + " Id: " + option.Id, "Ok");
+				}
+			}
+
+
+	DatePicker
+		XAML:
+			<DatePicker Format="d MMM yyyy" 
+				Date="5 Jan 2016"
+				MinimumDate="1 Jan 2016" 
+				MaximumDate="30 Jan 2016" 
+				DateSelected="OnDateSelected"/>
+
+		CODE BEHIND:
+			private void OnDateSelected(object sender, DateChangedEventArgs e)
+				=> DisplayAlert("Date", e.NewDate.ToString(), "Ok");
+				
+
+	DatePicker with current date
+		XAML:
+		* Need import System class on mscorlib
+			<ContentPage ...  xmlns:sys="clr-namespace:System;assembly=mscorlib" >
+			<DatePicker Format="d MMM yyyy" Date="{x:Static sys:DateTime.Today}" />
+
+	TimePicker
+		XAML:
+		* Use Unfocused to detect changes
+			<TimePicker x:Name="timePicker"  Time="13:00" Unfocused="OnTimePickerUnfocused"/>
+
+		CODE BEHIND:
+			private void OnTimePickerUnfocused(object sender, FocusEventArgs e)
+				=> DisplayAlert("time", timePicker.Time.ToString(), "Ok");
+
+
+TableView
+	CellTypes:
+		TextCell
+		EntryCell
+		SwitchCell
+		ImageCell
+		ViewCell (Custom cell)
+
+	Simple
+		<TableView Intent="Settings" >
+			<TableRoot>
+				<TableSection Title="Settings" TextColor="Black" >
+					<TextCell Text="Owner" Detail="Name1" TextColor="Black"/>
+					<EntryCell Label="Title" Placeholder="Shopping"/>
+					<SwitchCell Text="Notifications" On="True"/>
+				</TableSection>
+			</TableRoot>
+		</TableView>
+
+	ViewCell (Custom cell)
+		<TableView Intent="Settings" >
+			<TableRoot>
+				<TableSection Title="Settings" TextColor="Black" >
+					<ViewCell>
+						<StackLayout Orientation="Horizontal" Padding="17,0">
+							<Label Text="Start" VerticalOptions="Center"/>
+							<DatePicker Date="1 Jan 2016" HorizontalOptions="FillAndExpand"/>
+						</StackLayout>
+					</ViewCell>
+				</TableSection>
+			</TableRoot>
+		</TableView>
+
+	Reusable custom cell (custom date cell example)
+		- Create a ViewCell
+			/extensions/DateCell.xaml.cs
+			* Note usage of Bindable property
+				public partial class DateCell : ViewCell {
+					public static readonly BindableProperty LabelProperty =
+						BindableProperty.Create("Label", typeof(string), typeof(DateCell));
+					public string Label {
+						get { return GetValue(LabelProperty) as string; }
+						set { SetValue(LabelProperty, value); }
+					}
+					public DateCell() {
+						InitializeComponent();
+						BindingContext = this;
+					}
+				}
+
+			/extensions/DateCell.xaml
+				<ViewCell ...  x:Class="XamarinExample.Extensions.DateCell" >
+					<StackLayout Orientation="Horizontal" Padding="17,0">
+						<Label Text="{Binding Label}" VerticalOptions="Center"/>
+						<DatePicker Date="1 Jan 2016" HorizontalOptions="FillAndExpand"/>
+					</StackLayout>
+				</ViewCell>
+		- Usage
+		* Import namespace
+			<contentpage ...  xmlns:local="clr-namespace:ProjectName.extensions" >
+			<TableView Intent="Settings" >
+				<TableRoot>
+					<TableSection Title="settings" TextColor="black" >
+						<EntryCell Label="title" Placeholder="shopping"/>
+						<local:DateCell Label="start" />
+						<local:DateCell Label="end" />
+					</TableSection>
+				</TableRoot>
+			</TableView>
+
+	Picker with navigation 
+		* Allow a better control of picker elements
+		* Need MainPage as NavigationPage parameter
+		MainPage.xaml
+			<TableView Intent="Form">
+				<TableRoot>
+					<TableSection>
+						<ViewCell Tapped="ViewCell_Tapped">
+							<StackLayout Orientation="Horizontal" Padding="13, 5">
+								<Label Text="Contact Method" VerticalOptions="Center"/>
+								<Label x:Name="contactMethod"
+												VerticalOptions="Center"
+												HorizontalOptions="EndAndExpand"
+												Text="None" />
+							</StackLayout>
+						</ViewCell>
+					</TableSection>
+				</TableRoot>
+			</TableView>
+			
+		MainPage.xaml.cs
+			public partial class MainPage : ContentPage {
+				public MainPage() => InitializeComponent();
+				private void ViewCell_Tapped(object sender, EventArgs e) {
+					var page = new ContactMethodsPage();
+					// on list ItemSelected
+					page.ContactMethods.ItemSelected += (sorce, args) => {
+						// set main page label text
+						contactMethod.Text = args.SelectedItem.ToString();
+						// return to main page
+						Navigation.PopAsync();
+					};
+					// go to contact method list page
+					Navigation.PushAsync(page);
+				}
+			}
+
+		ContactMethodsPage.xaml 
+			<ListView x:Name="listView"/>
+
+		ContactMethodsPage.xaml.cs
+			public partial class ContactMethodsPage : ContentPage {
+				// * Note exposition of listView as public to access on Main page code
+				public ListView ContactMethods { get { return listView; } }
+				
+				public ContactMethodsPage() {
+					InitializeComponent();
+					listView.ItemsSource = new List<string> { "None", "Email", "SMS" };
+				}
+			}
+
+
+Data access
+	Application Properties
+		Used to save:
+			Application settings
+			Trascient data (data that is not persistent yet)
+		Data is saved when:
+			App is going to sleep
+			App is closed
+			Save explicitly
+				Application.Current.SavePropertiesAsync();
+	
+		MainPage.xaml
+			<StackLayout>
+				<Entry x:Name="title" 
+					Text="{Binding Title}" 
+					Completed="OnChange"/>
+				<Switch x:Name="notifications" 
+					IsToggled="{Binding NotificationsEnabled}" 
+					Toggled="OnChange" />
+			</StackLayout>
+
+		MainPage.xaml.cs
+			public partial class MainPage : ContentPage {
+				private readonly string _titleField = "title";
+				private readonly string _notificationField = "Notifications";
+				public MainPage() {
+					InitializeComponent();
+					// load data
+					if (Application.Current.Properties.ContainsKey(_titleField))
+						title.Text = Application.Current.Properties[_titleField].ToString();
+					if (Application.Current.Properties.ContainsKey(_notificationField))
+						notifications.IsToggled = (bool)Application.Current.Properties[_notificationField];
+				}
+				// save data on entry change
+				void OnChange(object sender, EventArgs e) {
+					Application.Current.Properties[_titleField] = title.Text;
+					Application.Current.Properties[_notificationField] = notifications.IsToggled;
+				}
+			}
+
+	Application Properties cleaner implementation
+		App.xaml.cs
+			public partial class App : Application {
+				private const string _titleKey = "title";
+				private const string _notificationKey = "notification";
+				public string Title {
+					get { return Properties.ContainsKey(_titleKey) ? Properties[_titleKey].ToString() : ""; }
+					set { Properties[_titleKey] = value; }
+				}
+				public bool Notification {
+					get { return Properties.ContainsKey(_notificationKey) ? (bool)Properties[_notificationKey] : false; }
+					set { Properties[_notificationKey] = value; }
+				}
+				...
+
+		MainPage.xaml
+		   <StackLayout>
+				<Entry x:Name="title" Text="{Binding Title}" />
+				<Switch x:Name="notifications" IsToggled="{Binding Notification}" />
+			</StackLayout>
+
+		MainPage.xaml.cs
+			public partial class MainPage : ContentPage {
+				public MainPage() {
+					InitializeComponent();
+					BindingContext = Application.Current;
+				}
+			}
+
+
+	File System
+		Libraries for each platform
+			Android: System.IO
+			iOS: System.IO
+			Windows: Windows.Storage
+		Steps
+			Create FileSystem interface
+				public interface IFileSystem {
+					Task WriteTextAsync(string fileName, string text);
+					Task<string> ReadTextAsync(string fileName);
+				}
+			Implement IFileSystem on each platform project
+			* Each interface implementation must register that dependency (namespace Xamarin.Forms)
+				[assembly: Dependency(typeof(XamarinExample.Droid.FileSystem))]
+			Android
+				[assembly: Dependency(typeof(XamarinExample.Droid.FileSystem))]
+				namespace XamarinExample.Droid {
+					public class FileSystem : IFileSystem {
+						public async Task WriteTextAsync(string fileName, string text) {
+							var docsPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments);
+							var path = Path.Combine(docsPath, fileName);
+							using var writer = File.CreateText(path);
+							await writer.WriteAsync(text);
+						}
+
+						public async Task<string> ReadTextAsync(string fileName) {
+							var docsPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments);
+							var path = Path.Combine(docsPath, fileName);
+							return await File.ReadAllTextAsync(path);
+						}
+					}
+				}
+
+				Windows 
+					[assembly: Dependency(typeof(XamarinExample.Windows.FileSystem))]
+					namespace XamarinExample.Windows{ 
+					  public class FileSystem : IFileSystem {
+							public async Task WriteTextAsync(string fileName, string text) {
+								var localFolder = ApplicationData.Current.LocalFolder;
+								var storageFile = await localFolder.CreateFileAsync(fileName);
+								await FileIO.WriteTextAsync(storageFile, text);
+							}
+						}
+						...
+					}
+			Usage:
+				MainPage.xaml.cs
+					public partial class MainPage : ContentPage {
+						private string _fileName = "test.txt";
+						private IFileSystem _fileSystem = DependencyService.Get<IFileSystem>();
+						public MainPage() {
+							InitializeComponent();
+							_fileSystem.WriteTextAsync(_fileName, "hello world");
+						}
+						protected async override void OnAppearing() {
+							var text = await _fileSystem.ReadTextAsync(_fileName);
+							await DisplayAlert("test.txt", text, "ok");
+						}
+					}
+
+
+	File System using PCLStorage Library
+		Install PCLStorage library by Daniel Plaisted on all Platform (PCL, Android, etc)
+
+		MainPage.xaml.cs
+			public partial class MainPage : ContentPage {
+				private string _fileName = "test.txt";
+				private IFolder _folder = PCLStorage.FileSystem.Current.LocalStorage;
+				public MainPage() => InitializeComponent();
+				private async Task WriteTextAsyn(string fileName, string content) {
+					IFile file = await _folder.CreateFileAsync(fileName, CreationCollisionOption.OpenIfExists);
+					await file.WriteAllTextAsync(content);
+				}
+				private async Task<string> ReadTextAsync(string fileName) {
+					var file = await _folder.GetFileAsync(_fileName);
+					return await file.ReadAllTextAsync();
+				}
+				protected async override void OnAppearing() {
+					await WriteTextAsyn(_fileName, "Hello world");
+					var content = await ReadTextAsync(_fileName);
+					await DisplayAlert(_fileName, content, "Ok");
+				}
+			}
+
+
+	SQLite
+		- Install sqlite-net-pcl on each project (PCL, Android, iOS, etc)
+
+		- Create an SQLiteDb interface on PCL
+			public interface ISQLiteDb { SQLite.SQLiteAsyncConnection GetConnection(); }
+
+		- Implemtent interface ISQLiteDb interface on each platform
+			Android
+				using Env = System.Environment;
+				[assembly: Dependency(typeof(SQLite.Droid.SQLiteDb))]
+				namespace SQLite.Droid {
+					public class SQLiteDb : ISQLiteDb {
+						public SQLiteAsyncConnection GetConnection() {
+							var folder = Env.SpecialFolder.MyDocuments;
+							var folderOption = Env.SpecialFolderOption.Create;
+							var documentsPath = Env.GetFolderPath(folder, folderOption);
+							var path = Path.Combine(documentsPath, "MySQLite.db3");
+							return new SQLiteAsyncConnection(path);
+						}
+					}
+				}
+
+		- Create a model (SQLite table is created based on properties) on PCL project
+		* To ListView reflect changes Model must use INotifyPropertyChanged
+		* CallerMemberName is used to get the caller name
+		* CallerMemberName is an alternative to write (nameof(PropertyName))
+		* To change column name use attribute [Column("columnName")]
+			public class Recipe : INotifyPropertyChanged {
+				public event PropertyChangedEventHandler PropertyChanged;
+				private string _name;
+				[PrimaryKey, AutoIncrement]
+				public int Id { get; set; }
+				[MaxLength(255)]
+				public string Name {
+					get { return _name; }
+					set { SetValue(ref _name, value); }
+				}
+				private void SetValue<T>(ref T backingField, T value,
+					[CallerMemberName] string propertyName = null) {
+					if (EqualityComparer<T>.Default.Equals(backingField, value))
+						return;
+					backingField = value;
+					OnPropertyChanged(propertyName);
+				}
+				private void OnPropertyChanged([CallerMemberName] string propertyName = null) {
+					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+				}
+			}
+		- Usage
+			MainPage.xaml.cs
+				public partial class MainPage : ContentPage{
+
+					private SQLiteAsyncConnection _connection;
+					private ObservableCollection<Recipe> _recipes;
+
+					public MainPage() {
+						InitializeComponent();
+						_connection = DependencyService.Get<ISQLiteDb>().GetConnection();
+					}
+
+					protected override async void OnAppearing() {
+						base.OnAppearing();
+						await _connection.CreateTableAsync<Recipe>();
+						var recipes = await _connection.Table<Recipe>().ToListAsync();
+						_recipes = new ObservableCollection<Recipe>(recipes);
+						recipeList.ItemsSource = _recipes;
+					}
+
+					async void OnAdd(object sender, EventArgs e) {
+						var recipe = new Recipe { Name = "Recipe " + DateTime.Now.Ticks };
+						await _connection.InsertAsync(recipe);
+						_recipes.Add(recipe);
+					}
+
+					async void OnDelete(object sender, EventArgs e) {
+						var recipe = _recipes[0];
+						await _connection.DeleteAsync(recipe);
+						_recipes.Remove(recipe);
+					}
+
+					async void OnUpdate(object sender, EventArgs e) {
+						var recipe = _recipes.FirstOrDefault();
+
+						// *Problem: sometimes ListView is updated 
+						// recipe.Name += " Updated";
+
+						// work arround 
+						var name = recipe.Name + " Updated";
+						var id = recipe.Id;
+						_recipes.Remove(recipe);
+						_recipes.Insert(0, new Recipe { Id = id, Name = name });
+
+						await _connection.UpdateAsync(recipe);
+					}
+				}
+
+
+	REST API Consuming
+		Install 
+			Microsoft.Net.Http
+			Newtonsoft.Json
+		Model
+			* For test purpose only Title notify changes
+			public class Post : INotifyPropertyChanged {
+				public event PropertyChangedEventHandler PropertyChanged;
+				private string _title;
+				public int Id { get; set; }
+				
+				public string Title {
+					get => _title; 
+					set => SetValue(ref _title, value);
+				}
+
+				public string Body { get; set; }
+
+				private void SetValue<T>(ref T backingField, T value,
+								[CallerMemberName] string propertyName = null) {
+					if (!EqualityComparer<T>.Default.Equals(backingField, value)) {
+						backingField = value;
+						OnPropertyChanged(propertyName);
+					}
+				}
+
+				private void OnPropertyChanged([CallerMemberName] string propertyName = "")
+					=> PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+			}
+
+		MainPage.xaml
+			<StackLayout>
+				<StackLayout Orientation="Horizontal">
+					<Button Text="Add" Clicked="OnAdd" BackgroundColor="Transparent"/>
+					<Button Text="Update" Clicked="OnUpdate" BackgroundColor="Transparent"/>
+					<Button Text="Delete" Clicked="OnDelete" BackgroundColor="Transparent"/>
+				</StackLayout>
+				<ListView x:Name="postList">
+					<ListView.ItemTemplate>
+						<DataTemplate>
+							<!--
+								<TextCell Text="{Binding Title}" Detail="{Binding Body}"/>
+								-->
+							<TextCell Text="{Binding Title}"/>
+						</DataTemplate>
+					</ListView.ItemTemplate>
+				</ListView>
+			</StackLayout>
+
+		MainPage.xaml.cs
+			public partial class MainPage : ContentPage {
+				private const string Url = "https://jsonplaceholder.typicode.com/posts";
+				private readonly HttpClient _client = new HttpClient();
+				private ObservableCollection<Post> _posts;
+
+				public MainPage() => InitializeComponent();
+
+				protected override async void OnAppearing() {
+					base.OnAppearing();
+					var content = await _client.GetStringAsync(Url);
+					var posts = JsonConvert.DeserializeObject<List<Post>>(content);
+					_posts = new ObservableCollection<Post>(posts);
+					postList.ItemsSource = _posts;
+				}
+
+				async void OnAdd(object sender, EventArgs e) {
+					var post = new Post { Title = "Title " + DateTime.Now.Ticks };
+					// * Need check if post is successfully added on server
+					_posts.Insert(0, post);
+					var content = JsonConvert.SerializeObject(post);
+					await _client.PostAsync(Url, new StringContent(content));
+				}
+
+				async void OnUpdate(object sender, EventArgs e) {
+					var post = _posts[0];
+					// * Need check if post is successfully updated on server
+					post.Title += " Updated";
+					var content = JsonConvert.SerializeObject(post);
+					await _client.PostAsync(Url + "/" + post.Id, new StringContent(content));
+				}
+
+				async void OnDelete(Object sender, EventArgs e) {
+					var post = _posts[0];
+					// * Need check if post is successfully deleted on server
+					_posts.Remove(post);
+					await _client.DeleteAsync(Url + "/" + post.Id);
+				}
+			}
+
+
+AppPlaylists project (Before implement MVVM Pattern)
+	Models/Playlist.cs
+		public class Playlist : INotifyPropertyChanged {
+			public event PropertyChangedEventHandler PropertyChanged;
+			public string Title { get; set; }
+			private bool _isFavorite;
+			public bool IsFavorite {
+				get { return _isFavorite; }
+				set {
+					SetValue(ref _isFavorite, value);
+					OnPropertyChanged(nameof(Color));
+				}
+			}
+
+			public Color Color {
+				get => _isFavorite ? Color.Pink : Color.Black; 
+			}
+
+			protected void SetValue<T>(ref T backingField, T value, [CallerMemberName] string propertyName = null) {
+				if (!EqualityComparer<T>.Default.Equals(backingField, value))
+				{
+					backingField = value;
+					OnPropertyChanged(propertyName);
+				}
+			}
+
+			private void OnPropertyChanged([CallerMemberName] string propertyName = null)
+				=> PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+		}
+	
+	PlaylistDetailPage.xaml
+		<Label x:Name="title"/>
+
+	PlaylistDetailPage.xaml.cs
+		public partial class PlaylistDetailPage : ContentPage {
+			private readonly Models.Playlist _playlist;
+			public PlaylistDetailPage(Models.Playlist playlist) {
+				InitializeComponent();
+				_playlist = playlist;
+				title.Text = _playlist.Title;
+			}
+		}
+
+	MainPage.xaml
+		<ContentPage.ToolbarItems>
+			<ToolbarItem Text="Add" Clicked="OnAddPlaylist"/>
+		</ContentPage.ToolbarItems>
+
+		<ListView x:Name="playlistListview" ItemSelected="OnPlaylistSelected">
+			<ListView.ItemTemplate>
+				<DataTemplate>
+					<TextCell
+						Text="{Binding Title}"
+						Detail="{Binding IsFavorite, StringFormat='Favorite: {0}'}"
+						TextColor="{Binding Color}"
+						/>
+				</DataTemplate>
+			</ListView.ItemTemplate>
+		</ListView>
+	
+	MainPage.xaml.cs
+		public partial class MainPage : ContentPage {
+			public ObservableCollection<Playlist> _playlist = new ObservableCollection<Playlist>();
+			public MainPage() => InitializeComponent(); 
+			protected override void OnAppearing() {
+				base.OnAppearing();
+				playlistListview.ItemsSource = _playlist;
+			}
+
+			void OnAddPlaylist(object sender, EventArgs e) {
+				var newPlaylist = "Playlist " + (_playlist.Count + 1);
+				_playlist.Add(new Playlist { Title = newPlaylist });
+				Title = $"{_playlist.Count} Playlists";
+			}
+
+			void OnPlaylistSelected (object sender, SelectedItemChangedEventArgs e) {
+				if (e.SelectedItem == null)
+					return;
+				var playlist = e.SelectedItem as Playlist;
+				playlist.IsFavorite = !playlist.IsFavorite;
+				playlistListview.SelectedItem = null;
+				Navigation.PushAsync(new PlaylistDetailPage(playlist));
+			}
+		}
+
+
+MVVM Architectural pattern (AppPlaylistsMVVMPattern project)
+	Components:
+		Model, View, ViewModel
+	Extracting UI behavior to ViewModel
+		Replace references to UI object with data binding on Xaml
+		Move event handlers to ViewModel
+			Replace event handler with ICommand interface if possible
+		
+	* Need NavigationPage
+
+	ViewModels/BaseViewModel.cs
+		public class BaseViewModel : INotifyPropertyChanged {
+			public event PropertyChangedEventHandler PropertyChanged;
+			protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+				=> PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+			protected void SetValue<T>(ref T backingField, T value, [CallerMemberName] string propertyName = null) {
+				if (!EqualityComparer<T>.Default.Equals(backingField, value)) {
+					backingField = value;
+					OnPropertyChanged(propertyName);
+				}
+			}
+		}
+
+	ViewModels/PlaylistViewModel.cs
+		public class PlaylistViewModel : BaseViewModel {
+			public string Title { get; set; }
+			private bool _isFavorite;
+			public bool IsFavorite {
+				get => _isFavorite; 
+				set {
+					SetValue(ref _isFavorite, value);
+					OnPropertyChanged(nameof(Color));
+				}
+			}
+			public Color Color { get => _isFavorite ? Color.Pink : Color.Black; }
+		}
+
+	ViewModels/MainPageViewModel.cs
+		public class MainPageViewModel : BaseViewModel {
+			public ObservableCollection<PlaylistViewModel> Playlists { get; private set; }
+				= new ObservableCollection<PlaylistViewModel>();
+
+			private PlaylistViewModel _selectedPlaylist;
+
+			public PlaylistViewModel SelectedPlaylist {
+				get { return _selectedPlaylist; }
+				set { SetValue(ref _selectedPlaylist, value); }
+			}
+
+			public ICommand AddPlaylistCommand { get; private set; }
+			public ICommand SelectPlaylistCommand { get; private set; }
+			private readonly IPageService _pageService;
+
+			public MainPageViewModel(IPageService pageService) {
+				_pageService = pageService;
+				AddPlaylistCommand = new Command(AddPlaylist);
+				SelectPlaylistCommand = new Command<PlaylistViewModel>(async vm => await SelectPlaylist(vm));
+			}
+
+			private void AddPlaylist() {
+				var newPlaylist = "Playlist " + (Playlists.Count + 1);
+				Playlists.Add(new PlaylistViewModel { Title = newPlaylist });
+			}
+
+			private async Task SelectPlaylist(PlaylistViewModel playlist) {
+				if (playlist == null) return;
+				playlist.IsFavorite = !playlist.IsFavorite;
+				SelectedPlaylist = null;
+				await _pageService.PushAsync(new PlaylistDetailPage(playlist));
+			}
+		}
+
+	Services/IPageService.cs
+		public interface IPageService {
+			Task PushAsync(Page page);
+			Task<bool> DisplayAlert(string title, string message, string ok, string cancel);
+		}
+
+	Services/PageService.cs
+		internal class PageService : IPageService {
+			public async Task<bool> DisplayAlert(string title, string message, string ok, string cancel)
+				=> await Application.Current.MainPage.DisplayAlert(title, message, ok, cancel);
+
+			public async Task PushAsync(Page page)
+				=> await Application.Current.MainPage.Navigation.PushAsync(page);
+		}
+
+	MainPage.xaml
+		<ContentPage.ToolbarItems>
+			<ToolbarItem Text="Add" Command="{Binding AddPlaylistCommand}"/>
+		</ContentPage.ToolbarItems>
+
+		<ContentPage.Content>
+			<StackLayout>
+				<ListView 
+			SelectedItem="{Binding SelectedPlaylist, Mode=TwoWay}"
+			ItemsSource="{Binding Playlists}"
+			ItemSelected="OnPlaylistSelected">
+					<ListView.ItemTemplate>
+						<DataTemplate>
+							<TextCell
+								Text="{Binding Title}"
+								Detail="{Binding IsFavorite, StringFormat='Favorite: {0}'}"
+								TextColor="{Binding Color}" />
+						</DataTemplate>
+					</ListView.ItemTemplate>
+				</ListView>
+			</StackLayout>
+		</ContentPage.Content>
+
+	MainPage.xaml.cs
+		public partial class MainPage : ContentPage {
+			public MainPage() {
+				InitializeComponent();
+				ViewModel = new MainPageViewModel(new PageService());
+			}
+
+			void OnPlaylistSelected(object sender, SelectedItemChangedEventArgs e) 
+				=> ViewModel.SelectPlaylistCommand.Execute(e.SelectedItem);
+
+			private MainPageViewModel ViewModel {
+				get { return BindingContext as MainPageViewModel; }
+				set { BindingContext = value; }
+			}
+		}
+
+	PlaylistDetailPage.xaml
+		<Label x:Name="title"/>
+
+	PlaylistDetailPage.xaml.cs
+		public partial class PlaylistDetailPage : ContentPage {
+			public PlaylistDetailPage(PlaylistViewModel playlist) {
+				InitializeComponent();
+				title.Text = playlist.Title;
+			}
+		}
+
+		
+Static resource
+	<!-- 
+	Individual page resources
+	-->
+	<ContentPage.Resources>
+		<ResourceDictionary>
+			<x:Int32 x:Key="radius">20</x:Int32>
+			<Color x:Key="buttonBg">Gray</Color>
+		</ResourceDictionary>
+	</ContentPage.Resources>
+
+	<!--
+	Global resources are set on App.xaml
+	* Only set needed resources (performance)
+	* Global resources can be overwrited by Individual page resources
+		<Application >
+			<Application.Resources>
+				<ResourceDictionary>
+					<x:Int32 x:Key="radius">15</x:Int32>
+					<Color x:Key="buttonBg">Gray</Color>
+				</ResourceDictionary>
+			</Application.Resources>
+		</Application>
+	-->
+
+	<!-- 
+	Resources usage
+	-->
+	<StackLayout Spacing="20" VerticalOptions="Center">
+	<Button Text="Login" TextColor="White"
+			Background="{StaticResource buttonBg}"
+			CornerRadius="{StaticResource radius}"
+			FontAttributes="Bold"/>
+	</StackLayout>
+
+			
+Dynamic resource
+	MainPage.xaml
+		<ContentPage.Resources>
+			<ResourceDictionary>
+				<Color x:Key="buttonBg">Green</Color>
+				<x:Int32 x:Key="radius">0</x:Int32>
+			</ResourceDictionary>
+		</ContentPage.Resources>
+
+		<StackLayout Spacing="20" VerticalOptions="Center">
+			<Button Text="Login"
+				TextColor="White"
+				Background="{DynamicResource buttonBg}"
+				CornerRadius="{DynamicResource radius}"
+				FontAttributes="Bold"/>
+			<Button Text="Register" TextColor="White" />
+		</StackLayout>
+
+	MainPage.xaml.cs
+		public partial class MainPage : ContentPage {
+			public MainPage() => InitializeComponent();
+
+			private void Button_Clicked(object sender, EventArgs e) {
+				Resources["buttonBg"] = Color.Pink;
+				Resources["radius"] = 20;
+			}
+		}
+		
+
+Style
+	* Specific style definition with 'X' name overwrite global style definition with 'X' name
+	* TargetType Attribute is necessary
+	<ContentPage.Resources>
+		<ResourceDictionary>
+			<!-- Defining style -->
+			<Style x:Key="button" TargetType="Button">
+				<Setter Property="BackgroundColor" Value="RoyalBlue"/>
+				<Setter Property="TextColor" Value="White"/>
+				<Setter Property="CornerRadius" Value="20"/>
+				<Setter Property="FontAttributes" Value="Bold"/>
+			</Style>
+
+			<!-- Inherit style -->
+			<Style x:Key="primaryButton" TargetType="Button" BasedOn="{StaticResource button}">
+				<Setter Property="BackgroundColor" Value="CadetBlue"/>
+			</Style>
+
+			<!-- Style without name applies to all types defined on TargetType -->
+			<Style  TargetType="Button" BasedOn="{StaticResource button}">
+				<Setter Property="BackgroundColor" Value="SkyBlue"/>
+			</Style>
+
+		</ResourceDictionary>
+	</ContentPage.Resources>
+
+	<StackLayout Spacing="20" VerticalOptions="Center">
+		<Button Text="Login" Style="{StaticResource button}"/>
+		<Button Text="Register" Style="{StaticResource primaryButton}"/>
+
+		<!-- Style without name is applied -->
+		<Button Text="About"/>
+	</StackLayout>
+
+
+Messaging Center Alternative 
+	Send data between pages
+	* Need NavigationPage
+	TargetPage.xaml
+		<StackLayout>
+			<Label x:Name="label" Text="{Binding Source={x:Reference slider}, Path=Value}"/>
+			<Slider x:Name="slider" ValueChanged="OnValueChanged"/>
+		</StackLayout>
+
+	TargetPage.xaml.cs
+		public partial class TargetPage : ContentPage {
+			public event EventHandler<double> SliderValueChanged;
+			public TargetPage(string sliderValue) {
+				InitializeComponent();
+				double.TryParse(sliderValue, out double value);
+				slider.Value = value;   
+			}  
+
+			void OnValueChanged(object sender, ValueChangedEventArgs e)
+				=> SliderValueChanged?.Invoke(this, e.NewValue);
+		}
+
+	MainPage.xaml
+		<StackLayout>
+			<Label Text="0"
+					x:Name="label"
+					VerticalOptions="CenterAndExpand" 
+					HorizontalOptions="CenterAndExpand" />
+
+			<Button Text="Target Page" Clicked="OnClick"/>
+		</StackLayout>
+
+	MainPage.xaml.cs
+		public partial class MainPage : ContentPage {
+			public MainPage() => InitializeComponent();
+			void OnClick(object sender, EventArgs e) {
+				var page = new TargetPage(label.Text);
+				page.SliderValueChanged += OnSliderValueChanged;
+				Navigation.PushAsync(page);
+			}
+
+			private void OnSliderValueChanged(object source, double newValue)
+				=> label.Text = newValue.ToString();
+		}
+
+
+Messaging Center 
+	Send data between pages
+	* Need NavigationPage
+	TargetPage.xaml
+		<StackLayout>
+			<Label x:Name="label" Text="{Binding Source={x:Reference slider}, Path=Value}"/>
+			<Slider x:Name="slider" ValueChanged="OnValueChanged"/>
+		</StackLayout>
+
+	TargetPage.xaml.cs
+		public partial class TargetPage : ContentPage {
+			public TargetPage(string sliderValue) {
+				InitializeComponent();
+				double.TryParse(sliderValue, out double value);
+				slider.Value = value;
+			}
+			void OnValueChanged(object sender, ValueChangedEventArgs e)
+				=> Xamarin.Forms.MessagingCenter.Send(this, "SliderValueChanged", e.NewValue);
+		}
+
+	MainPage.xaml
+		<StackLayout>
+			<Label Text="0"
+				x:Name="label"
+				VerticalOptions="CenterAndExpand" 
+				HorizontalOptions="CenterAndExpand" />
+
+			<Button Text="Target Page" Clicked="OnClick"/>
+		</StackLayout>
+
+	MainPage.xaml.cs
+		public partial class MainPage : ContentPage {
+			public MainPage() => InitializeComponent();
+			void OnClick(object sender, EventArgs e) {
+				var page = new TargetPage(label.Text);
+				Xamarin.Forms.MessagingCenter.Subscribe<TargetPage, double>(
+					this, "SliderValueChanged", OnSliderValueChanged);
+				Navigation.PushAsync(page);
+				Xamarin.Forms.MessagingCenter.Unsubscribe<MainPage>(this, "SliderValueChanged");
+			}
+
+			private void OnSliderValueChanged(TargetPage source, double newValue)
+				=> label.Text = newValue.ToString();
+		}

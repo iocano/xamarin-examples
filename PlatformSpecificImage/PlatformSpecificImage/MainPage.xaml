@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+			 x:Class="PlatformSpecificImage.MainPage">
+
+	<StackLayout VerticalOptions="Center">
+
+		<!--
+		<Button 
+			ImageSource="user.png"
+			HeightRequest="100"
+			WidthRequest="100"
+			HorizontalOptions="Center"
+			VerticalOptions="Center"/>
+		-->
+
+		<!--
+		ImageSource set in Code benind
+		-->
+		<Button
+		   x:Name="button1"
+		   HeightRequest="100" 
+		   WidthRequest="100" 
+		   HorizontalOptions="Center"
+		   VerticalOptions="Center"/>
+
+
+		<!--
+		Diferent image for each platform
+		-->
+		<!--
+		<Button  x:Name="button1">
+			<Button.ImageSource>
+				<OnPlatform x:TypeArguments="FileImageSource">
+					<On Platform="iOS" Value="imageIOS.png"/>
+					<On Platform="Android" Value="imageAndroid.png"/>
+					<On Platform="UWP" Value="Images/imageWin.png"/>
+				</OnPlatform>
+			</Button.ImageSource>
+		</Button>
+		-->
+	</StackLayout>
+</ContentPage>

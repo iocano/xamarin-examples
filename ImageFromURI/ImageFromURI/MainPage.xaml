@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+			 x:Class="ImageFromURI.MainPage">
+
+	<StackLayout>
+		<!--
+		Option 1
+		Caching is enabled by default and will store the image locally for 24 hours
+		-->
+		<Image Source="https://picsum.photos/id/1018/1920/1080" />
+
+		<!--
+		Option 2 
+		-->
+		
+		<Image>
+			<Image.Source>
+				<UriImageSource 
+					Uri="https://picsum.photos/id/1018/1920/1080" 
+					CacheValidity="14" 
+					CachingEnabled="True"/>
+			</Image.Source>
+		</Image>
+	</StackLayout>
+</ContentPage>

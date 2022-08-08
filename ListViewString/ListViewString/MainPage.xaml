@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ListViewString.MainPage">
+    <StackLayout>
+
+        <!-- 
+        String ListView
+        -->
+        <ListView x:Name="list1">
+            <ListView.ItemsSource>
+                <x:Array Type="{x:Type x:String}">
+                    <x:String>Name1</x:String>
+                    <x:String>Name2</x:String>
+                </x:Array>
+            </ListView.ItemsSource>
+        </ListView>
+
+        <!-- 
+        String ListView Items (Source set in Code behind)
+        -->
+        <ListView x:Name="list2"/>
+
+        <!-- 
+        String ListView with custom cell (Source set in Code behind)
+        -->
+        <ListView x:Name="list3">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <ViewCell>
+                        <StackLayout HorizontalOptions="Center">
+                            <Label Text="{Binding .}"/>
+                        </StackLayout>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
+        <!--
+        ListView separator and color
+        -->
+        <ListView x:Name="list4" SeparatorVisibility="Default" SeparatorColor="Black" />
+
+    </StackLayout>
+</ContentPage>

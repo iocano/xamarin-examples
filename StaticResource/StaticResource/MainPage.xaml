@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="StaticResource.MainPage">
+
+    <!-- 
+    Individual page resources
+    -->
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <x:Int32 x:Key="radius">20</x:Int32>
+            <Color x:Key="buttonBg">Gray</Color>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <!--
+    Global resources are set on App.xaml
+    * Only set needed resources (performance)
+    * Global resources can be overwrited by Individual page resources
+        <Application >
+            <Application.Resources>
+                <ResourceDictionary>
+                    <x:Int32 x:Key="radius">15</x:Int32>
+                    <Color x:Key="buttonBg">Gray</Color>
+                </ResourceDictionary>
+            </Application.Resources>
+        </Application>
+    -->
+
+
+    <!-- 
+        Resources usage
+    -->
+    <StackLayout Spacing="20" VerticalOptions="Center">
+        <Button Text="Login" TextColor="White"
+                Background="{StaticResource buttonBg}"
+                CornerRadius="{StaticResource radius}"
+                FontAttributes="Bold"/>
+    </StackLayout>
+
+</ContentPage>

@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="AppConsumingRestApi.MainPage">
+
+    <ContentPage.Content >
+        <StackLayout >
+            <SearchBar Placeholder="Search author..." TextChanged="SearchChanged"/>
+
+            <Frame x:Name="notFound" Padding="20" HasShadow="false" IsVisible="false">
+                <Label Text="No movies found matching your search." TextColor="Gray" />
+            </Frame>
+            <AbsoluteLayout>
+                <ListView x:Name="bookList" IsVisible="False" HasUnevenRows="True" ItemSelected="OnBookSelected">
+                    <ListView.ItemTemplate >
+                        <DataTemplate>
+                            <ImageCell 
+                            Text="{Binding VolumeInfo.Title}" 
+                            ImageSource="{Binding VolumeInfo.ImageLinks.Thumbnail}" 
+                            Detail="{Binding VolumeInfo.PublishedDate}" />
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+                <ActivityIndicator 
+                    IsRunning="{Binding IsLoading}" 
+                    AbsoluteLayout.LayoutBounds="0.5, 0.5, 0.25, 0.25"
+                    AbsoluteLayout.LayoutFlags="All" />
+            </AbsoluteLayout>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

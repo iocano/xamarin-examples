@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="AppStackLayout.MainPage"
+             BackgroundColor="#909090">
+
+        <StackLayout VerticalOptions="Center"  Spacing="20">
+            <Label Text="Title" 
+                   FontSize="30"
+                   TextColor="White"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   />
+            <Label Text="Subtitle"
+                   HorizontalOptions="Center"
+                   FontSize="18" 
+                   TextColor="White"
+                   />
+            <Button Text="Page 1"    BackgroundColor="#606060" TextColor="White"/>
+            <Button Text="Page 2" BackgroundColor="#606060" TextColor="White"/>
+        </StackLayout>
+</ContentPage>

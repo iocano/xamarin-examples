@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Style.MainPage">
+    <!--
+    * Specific style definition with 'X' name overwrite global style definition with 'X' name
+    * TargetType Attribute is necessary
+    -->
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <!--
+            Defining style
+            -->
+            <Style x:Key="button" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="RoyalBlue"/>
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="CornerRadius" Value="20"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+            </Style>
+
+            <!--
+            Inherit style
+            -->
+            <Style x:Key="primaryButton" TargetType="Button" BasedOn="{StaticResource button}">
+                <Setter Property="BackgroundColor" Value="CadetBlue"/>
+            </Style>
+
+            <!--
+            Style without name applies to all types defined on TargetType
+            -->
+            <Style  TargetType="Button" BasedOn="{StaticResource button}">
+                <Setter Property="BackgroundColor" Value="SkyBlue"/>
+            </Style>
+
+
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <StackLayout Spacing="20" VerticalOptions="Center">
+        <Button Text="Login" Style="{StaticResource button}"/>
+        <Button Text="Register" Style="{StaticResource primaryButton}"/>
+
+        <!-- 
+        Style without name is applied
+        -->
+        <Button Text="About"/>
+    </StackLayout>
+
+</ContentPage>

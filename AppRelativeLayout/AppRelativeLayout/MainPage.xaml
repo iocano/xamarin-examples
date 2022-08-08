@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="AppRelativeLayout.MainPage">
+
+    <RelativeLayout BackgroundColor="White">
+        <BoxView BackgroundColor="#f7f7f7" x:Name="banner" 
+           RelativeLayout.HeightConstraint="{ ConstraintExpression 
+            Type=RelativeToParent, Property=Height, Factor=0.3 }"
+           RelativeLayout.WidthConstraint="{ ConstraintExpression 
+            Type=RelativeToParent, Property=Width, Factor=1}" />
+
+        <StackLayout HorizontalOptions="Center" VerticalOptions="Center"
+            RelativeLayout.HeightConstraint="{ConstraintExpression Type=RelativeToParent, Property=Height, Factor=0.3 }"
+            RelativeLayout.WidthConstraint="{ConstraintExpression Type=RelativeToParent, Property=Width, Factor=1 }" >
+            <Label Text="Title" TextColor="#33353a" FontSize="60" FontAttributes="Bold"/>
+            <Button Text="Button" BackgroundColor="#1695A3" CornerRadius="15" TextColor="White" FontSize="15" FontAttributes="Bold"/>
+        </StackLayout>
+
+        <StackLayout 
+            RelativeLayout.YConstraint="{ConstraintExpression Type=RelativeToView, Property=Height, ElementName=banner,Factor=1,Constant=30 }"
+            RelativeLayout.WidthConstraint="{ConstraintExpression Type=RelativeToParent, Property=Width, Factor=1}"
+            Padding="40, 0" Spacing="20"
+            BackgroundColor="White" >
+            <Label Text="Subtitle" FontSize="15" FontAttributes="Bold" HorizontalTextAlignment="Center" />
+            <Label FontSize="15" HorizontalTextAlignment="Center" x:Name="description"></Label>
+        </StackLayout>
+    </RelativeLayout>
+
+</ContentPage>

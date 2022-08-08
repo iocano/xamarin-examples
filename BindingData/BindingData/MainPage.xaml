@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+			 x:Class="BindingData.MainPage">
+	<StackLayout>
+
+		<!--
+		Data binding
+		-->
+		<Label x:Name="label1" Text="{Binding Source={x:Reference slider1}, Path=Value, StringFormat='Value is {0:F2}'}"  />
+		<Slider  x:Name="slider1"/>
+
+		<!--
+		Alternative binding syntax
+		*To ommit the keyword 'Path Binding Value must be the first part of the expresion between '{' and '}' 
+		-->
+		<Label x:Name="label2" Text="{Binding Value, Source={x:Reference slider2}, StringFormat='Value is {0:F2}'}"  />
+		<Slider  x:Name="slider2"/>
+
+		<!--
+		Binding context can be inherit to element children
+		-->
+
+		<!-- FROM: -->
+		<Label 
+			Text="{Binding Source={x:Reference slider3}, Path=Value, StringFormat='Value is {0:F2}'}"  
+			Opacity="{Binding Source={x:Reference slider3}, Path=Value}" />
+
+		<Slider  x:Name="slider3"/>
+
+		<!-- TO: -->
+		<Label BindingContext="{x:Reference slider4}"
+			Text="{Binding Value, StringFormat='Value is {0:F2}'}"  
+			Opacity="{Binding Value}" />
+		<Slider  x:Name="slider4" Value=".5"/>
+
+		<!-- 
+		"Result no visible because 'bind full page instance example'
+		Bind specific object (On code behind)
+		BindingContact = _person;
+
+		-->
+		<Label Text="{Binding Name}" />
+
+		<!--
+		Bind full page instance (On code behind)
+		BindingContext = this
+		-->
+		<Label Text="{Binding Person.Name}" />
+	</StackLayout>
+</ContentPage>
